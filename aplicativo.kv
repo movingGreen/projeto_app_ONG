@@ -1,0 +1,39 @@
+GerenciarTelas:
+    TelaMenu:
+        name: 'tela1'
+    TelaGame:
+        name: 'tela2'
+    TelaGameOver:
+        name: 'tela3'
+
+<TelaMenu>:
+    BoxLayout:
+        Label:
+            text: 'Tela Principal'
+        Button:
+            text: 'Iniciar'
+            on_release: app.root.current = 'tela2'
+        Button:
+            text: 'Finalizar'
+            on_release: app.stop()
+
+<TelaGame>:
+    BoxLayout:
+        Label:
+            text: 'Tela do Game'
+        Button:
+            text: 'Perdeu'
+            on_release: app.root.current = 'tela3'
+
+<TelaGameOver>:
+    BoxLayout:
+        padding: '50dp'
+        spacing: '20dp'
+        Label:
+            text: 'Tela do GameOver'
+        Button:
+            text: 'Jogar'
+            on_release: app.root.current = 'tela2'
+        Button:
+            text: 'Menu'
+            on_release: app.root.current = 'tela1'
