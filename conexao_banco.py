@@ -1,13 +1,16 @@
 import sqlite3
-import comando_criar_BD as scriptsDB
+from comandos_criar_BD import scriptsCriarTabelas 
 
 # conexão com banco sqlite
-conn = sqlite3.connect('clientes.db')
+conn = sqlite3.connect('Inventario_ONG.db')
+
 # definindo um cursor
 cursor = conn.cursor()
 
 # criando a tabela (schema)
-cursor.execute(scriptsDB.criarTabelaUsuario)
+for comando, script in scriptsCriarTabelas.items():
+    cursor.execute(script)
+    print("Tabela " + comando + " criada com sucesso")
 
-print("Tabela Usuário criada com sucesso")
+print("Banco de dados criado com sucesso")
 conn.close()

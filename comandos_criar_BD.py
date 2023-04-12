@@ -1,5 +1,5 @@
 
-scripsCriarTabelas = {
+scriptsCriarTabelas = {
 'criarTabelaPessoa' : """
     CREATE TABLE PESSOA (
     ID_Pessoa  SERIAL PRIMARY KEY,
