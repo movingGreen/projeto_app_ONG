@@ -1,4 +1,6 @@
-criarTabelaPessoa = """
+
+scripsCriarTabelas = {
+'criarTabelaPessoa' : """
     CREATE TABLE PESSOA (
     ID_Pessoa  SERIAL PRIMARY KEY,
     Nome VARCHAR(50),
@@ -7,22 +9,22 @@ criarTabelaPessoa = """
     Email VARCHAR(30)
     );
 """
-
-criarTabelaTipo_item = """
+,
+'criarTabelaTipo_item' : """
     CREATE TABLE Tipo_Item (
     ID_Tipo_Item SERIAL PRIMARY KEY,
     Descricao VARCHAR(50)
     );
 """
-
-criarTabelaTipo_saida = """
+,
+'criarTabelaTipo_saida' : """
     CREATE TABLE TIPO_SAIDA (
     ID_Tipo_Saida SERIAL PRIMARY KEY,
     Descricao VARCHAR(30)
     );
 """
-
-criarTabelaSaida = """
+,
+'criarTabelaSaida' : """
     CREATE TABLE SAIDA (
     ID_Saida SERIAL PRIMARY KEY,
     DT_Saida DATE,
@@ -31,16 +33,16 @@ criarTabelaSaida = """
     FOREIGN KEY(ID_Tipo_Saida) REFERENCES TIPO_SAIDA (ID_Tipo_Saida)
     );
 """
-
-criarTabelaUsuario = """
+,
+'criarTabelaUsuario' : """
     CREATE TABLE USUARIO (
     ID_Usuario SERIAL PRIMARY KEY,
     Login VARCHAR(30),
     Senha VARCHAR(50)
     );
 """
-
-criarTabelaDoacao = """
+,
+'criarTabelaDoacao' : """
     CREATE TABLE DOACAO (
     ID_Doacao SERIAL PRIMARY KEY,
     DT_Doacao DATE,
@@ -51,8 +53,8 @@ criarTabelaDoacao = """
     FOREIGN KEY(ID_Usuario) REFERENCES USUARIO (ID_Usuario)
     );
 """
-
-criarTabelaItem = """
+,
+'criarTabelaItem' : """
     CREATE TABLE ITEM (
     ID_Item SERIAL PRIMARY KEY,
     Descricao VARCHAR(100),
@@ -61,8 +63,8 @@ criarTabelaItem = """
     FOREIGN KEY(ID_Tipo_Item) REFERENCES Tipo_Item (ID_Tipo_Item)
     );
 """
-
-criarTabelaItem_doacao = """
+,
+'criarTabelaItem_doacao' : """
     CREATE TABLE ITEM_DOACAO (
     QT_Item INTEGER,
     ID_Item INTEGER,
@@ -72,8 +74,8 @@ criarTabelaItem_doacao = """
     FOREIGN KEY(ID_Doacao) REFERENCES DOACAO (ID_Doacao)
     );
 """
-
-criarTabelaItem_saida = """
+,
+'criarTabelaItem_saida' : """
     CREATE TABLE ITEM_SAIDA (
     QT_Item INTEGER,
     ID_Saida INTEGER,
@@ -83,3 +85,4 @@ criarTabelaItem_saida = """
     FOREIGN KEY(ID_Saida) REFERENCES SAIDA (ID_Saida)
     );
 """
+}
