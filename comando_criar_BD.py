@@ -33,8 +33,8 @@ criarTabelaSaida = """
 """
 
 criarTabelaUsuario = """
-    ID_Usuario SERIAL PRIMARY KEY,
     CREATE TABLE USUARIO (
+    ID_Usuario SERIAL PRIMARY KEY,
     Login VARCHAR(30),
     Senha VARCHAR(50)
     );
