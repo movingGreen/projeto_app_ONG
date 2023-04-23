@@ -12,11 +12,13 @@ GerenciadorTelas:
 
 <TextInput>
     pos_hint: {'center_x': .5}
-    size_hint: (.8, .8)
+    size_hint: (.8, .5)
     font_size: 32
 
 <LoginTela>:
     name: "login"
+    usuario: usuario
+    senha: senha
 
     BoxLayout:
         orientation: 'vertical'
@@ -29,12 +31,14 @@ GerenciadorTelas:
             text: "Usuario"
             
         TextInput:
+            id: usuario
             multiline: False
 
         Label:
             text: "Senha"
             
         TextInput:
+            id: senha
             multiline: False
 
         Button:
