@@ -1,8 +1,7 @@
-
 scriptsCriarTabelas = {
 'criarTabelaPessoa' : """
     CREATE TABLE PESSOA (
-    ID_Pessoa  SERIAL PRIMARY KEY,
+    ID_Pessoa  AUTOINCREMENT PRIMARY KEY,
     Nome VARCHAR(50),
     Endereco VARCHAR(100),
     Telefone VARCHAR(11),
@@ -12,21 +11,21 @@ scriptsCriarTabelas = {
 ,
 'criarTabelaTipo_item' : """
     CREATE TABLE Tipo_Item (
-    ID_Tipo_Item SERIAL PRIMARY KEY,
+    ID_Tipo_Item AUTOINCREMENT PRIMARY KEY,
     Descricao VARCHAR(50)
     );
 """
 ,
 'criarTabelaTipo_saida' : """
     CREATE TABLE TIPO_SAIDA (
-    ID_Tipo_Saida SERIAL PRIMARY KEY,
+    ID_Tipo_Saida AUTOINCREMENT PRIMARY KEY,
     Descricao VARCHAR(30)
     );
 """
 ,
 'criarTabelaSaida' : """
     CREATE TABLE SAIDA (
-    ID_Saida SERIAL PRIMARY KEY,
+    ID_Saida AUTOINCREMENT PRIMARY KEY,
     DT_Saida DATE,
     Observacao VARCHAR(100),
     ID_Tipo_Saida INTEGER,
@@ -36,7 +35,7 @@ scriptsCriarTabelas = {
 ,
 'criarTabelaUsuario' : """
     CREATE TABLE USUARIO (
-    ID_Usuario SERIAL PRIMARY KEY,
+    ID_Usuario AUTOINCREMENT PRIMARY KEY,
     Login VARCHAR(30),
     Senha VARCHAR(50)
     );
@@ -44,7 +43,7 @@ scriptsCriarTabelas = {
 ,
 'criarTabelaDoacao' : """
     CREATE TABLE DOACAO (
-    ID_Doacao SERIAL PRIMARY KEY,
+    ID_Doacao AUTOINCREMENT PRIMARY KEY,
     DT_Doacao DATE,
     Observacao VARCHAR(50),
     ID_Pessoa  INTEGER,
@@ -56,7 +55,7 @@ scriptsCriarTabelas = {
 ,
 'criarTabelaItem' : """
     CREATE TABLE ITEM (
-    ID_Item SERIAL PRIMARY KEY,
+    ID_Item AUTOINCREMENT PRIMARY KEY,
     Descricao VARCHAR(100),
     Qtd INTEGER,
     ID_Tipo_Item INTEGER,

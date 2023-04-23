@@ -7,10 +7,25 @@ conn = sqlite3.connect('Inventario_ONG.db')
 # definindo um cursor
 cursor = conn.cursor()
 
-# criando a tabela (schema)
+# criando as tabelas (schema)
 for comando, script in scriptsCriarTabelas.items():
     cursor.execute(script)
     print("Tabela " + comando + " criada com sucesso")
 
-print("Banco de dados criado com sucesso")
+# criando um usuarion admin
+# cursor.execute("""
+#                 INSERT INTO USUARIO (id_Usuario, Login, Senha)
+#                 VALUES (1, 'admin', '123')
+#             """
+# )
+
+# print(cursor.execute("""
+#                 SELECT * FROM USUARIO
+#             """
+# ).fetchall())
+
+# gravando no banco de dados os comandos
+conn.commit()
+
+print("Comandos executados com sucesso")
 conn.close()
