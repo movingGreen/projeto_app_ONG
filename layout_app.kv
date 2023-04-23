@@ -19,13 +19,11 @@ GerenciadorTelas:
     name: "login"
     usuario: usuario
     senha: senha
+    labelMensagem: labelMensagem
 
     BoxLayout:
         orientation: 'vertical'
         size: root.width, root.height
-        spacing: 10
-        padding: 10
-
 
         Label:
             text: "Usuario"
@@ -41,8 +39,21 @@ GerenciadorTelas:
             id: senha
             multiline: False
 
-        Button:
-            text: 'Login'
-            on_release: root.validarLogin()
-                    
+        Label:
+            id: labelMensagem
+            text:''
+        BoxLayout:
+            orientation:'horizontal'
 
+            Button:
+                text:'Esqueci a senha'
+            
+            Button:
+                text: 'Login'
+                on_release: root.validarLogin()
+
+<TelaPrincipal>:
+    name: 'principal'
+
+    Label:
+        text:'TELA PRINCIPAL'

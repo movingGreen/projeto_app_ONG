@@ -1,20 +1,39 @@
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.properties import ObjectProperty
+from conexao_banco import conectarBancoECursor, commitEFecharConexao, selectUsuario
 
-
+# declarando a tela de login
 class LoginTela(Screen):
+    usuario = ObjectProperty(None)
+    senha = ObjectProperty(None)
+    labelMensagem = ObjectProperty(None)
+    
     def validarLogin(self):
+        # recebendo os dados de login
+        usuarioText = self.usuario.text
+        senhaText = self.senha.text
         
-        """
-        app.root.current = "principal"
-                    root.manager.transition.direction = "left"
-        """
-        
-        pass
-    
-    
-    pass
+        # conectando com o banco de dados
+        conector, cursor = conectarBancoECursor()
+        try:
+            # pesquisando no BD o usuario
+            [usuarioBD] = selectUsuario(cursor, usuarioText)
+            
+            if (senhaText == usuarioBD[2]):
+                print("---Acesso permitido---")
+                self.labelMensagem.text = ""
+                self.manager.current = "principal"
+            else:
+                print("---Acesso negado---")
+                self.labelMensagem.text = "Senha Incorreta"
+        except:
+            print("###Erro de BD###")
+            self.labelMensagem.text = "Senha Incorreta"
+        finally: 
+            commitEFecharConexao(conector)    
+
 
 class TelaPrincipal(Screen):
     pass
