@@ -1,20 +1,30 @@
 from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
+from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 
-class GerenciarTelas(ScreenManager):
+
+class LoginTela(Screen):
+    def validarLogin(self):
+        
+        """
+        app.root.current = "principal"
+                    root.manager.transition.direction = "left"
+        """
+        
+        pass
+    
+    
     pass
 
-class TelaMenu(Screen):
+class TelaPrincipal(Screen):
     pass
 
-class TelaGame(Screen):
+class GerenciadorTelas(ScreenManager):
     pass
 
-class TelaGameOver(Screen):
-    pass
-
-class Aplicativo(App):
-    pass
-
-Aplicativo().run()
+class MyApp(App):
+    def build(self):
+        return Builder.load_file("layout_app.kv")
+    
+if __name__ == "__main__":
+    MyApp().run()
