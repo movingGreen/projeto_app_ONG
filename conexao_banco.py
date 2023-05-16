@@ -35,6 +35,12 @@ def selectUsuario(cursor, login):
     
     return resposta
 
+
+def operar_pessoa(cursor, operador, dados=None):
+    if dados is None:
+        dadosInserir = ['']
+
+
 def commitEFecharConexao(conector):
     # gravando no banco de dados os comandos
     conector.commit()

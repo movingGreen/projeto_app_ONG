@@ -1,59 +1,167 @@
 GerenciadorTelas:
-    LoginTela:
+
     TelaPrincipal:
-
-<Button>
-    font_size: 32
-    pos_hint: {'center_x': .5}
-    size_hint: (.4, .5)
-
-<Label>
-    font_size: 34
-
-<TextInput>
-    pos_hint: {'center_x': .5}
-    size_hint: (.8, .5)
-    font_size: 32
+    LoginTela:
+    TelaPessoa:
 
 <LoginTela>:
     name: "login"
     usuario: usuario
     senha: senha
-    labelMensagem: labelMensagem
 
-    BoxLayout:
-        orientation: 'vertical'
-        size: root.width, root.height
+    MDFloatLayout:
 
-        Label:
-            text: "Usuario"
-            
-        TextInput:
+        Image:
+            source: "images/logo.png"
+            pos_hint: {'center_x':0.5,'center_y':0.88}
+            size_hint_y: 0.25
+
+        MDLabel:
+            text: "Gerenciar Inventário"
+            halign: "center"
+            pos_hint: {'center_x': 0.5, 'center_y': 0.75}
+            font_size:  35
+
+        MDTextField:
             id: usuario
-            multiline: False
+            hint_text:"Login"
+            pos_hint: {'center_x':0.5,'center_y':0.6}
+            size_hint_x: 0.75
+            max_text_length: 25
 
-        Label:
-            text: "Senha"
-            
-        TextInput:
+        MDTextField:
             id: senha
-            multiline: False
+            hint_text:"Senha"
+            pos_hint: {'center_x':0.5,'center_y':0.45}
+            size_hint_x: 0.75
+            max_text_length: 25
+            password: True
 
-        Label:
-            id: labelMensagem
-            text:''
-        BoxLayout:
-            orientation:'horizontal'
+        MDFillRoundFlatIconButton:
+            icon: "check"
+            theme_icon_color: "Primary"
+            text: "Entrar"
+            pos_hint: {'center_x':0.5,'center_y':0.2}
+            size_hint_x: 0.40
+            theme_text_color: "Primary"
+            md_bg_color: 0.7, 0.7, 0.7, 1
+            line_color: "black"
+            font_size: 25
+            icon_size: 40
+            on_release: root.validarLogin()
 
-            Button:
-                text:'Esqueci a senha'
-            
-            Button:
-                text: 'Login'
-                on_release: root.validarLogin()
+        MDTextButton:
+            text: "Esqueci minha senha"
+            pos_hint: {'center_x':0.5,'center_y':0.1}
+            font_size: 25
+
 
 <TelaPrincipal>:
     name: 'principal'
 
-    Label:
-        text:'TELA PRINCIPAL'
+
+
+    MDFloatLayout:
+
+        Image:
+            source: "images/logo.png"
+            pos_hint: {'center_x':0.5,'center_y':0.88}
+            size_hint_y: 0.25
+
+
+        MDFillRoundFlatIconButton:
+            icon: "account-multiple"
+            theme_icon_color: "Custom"
+            icon_size: 35
+            text: "Pessoas"
+            pos_hint: {'center_x':0.5,'center_y':0.7}
+            size_hint_x: 0.40
+            text_color: 1,1,1,1
+            md_bg_color: 0.18,0.53,1,1
+            font_size: 30
+            on_release:
+                root.manager.transition.direction = 'left'
+                root.manager.current = "pessoa"
+
+        MDFillRoundFlatIconButton:
+            icon: "arrow-left-circle-outline"
+            theme_icon_color: "Custom"
+            text: "Sair"
+            pos_hint: {'center_x':0.5,'center_y':0.1}
+            size_hint_x: 0.20
+            theme_text_color: "Custom"
+            md_bg_color: 0, 0, 0, 1
+            line_color: "white"
+            font_size: 25
+            icon_size: 30
+            on_release:
+                root.manager.transition.direction = 'right'
+                root.manager.current = "login"
+
+<TelaPessoa>:
+    name: 'pessoa'
+
+    MDFloatLayout:
+
+
+        MDLabel:
+            text: "Cadastrar\nPessoa"
+            halign: "center"
+            pos_hint: {'center_x': 0.5, 'center_y': 0.9}
+            font_size:  40
+
+        MDTextField:
+            id: pessoaNome
+            hint_text:"Nome"
+            pos_hint: {'center_x':0.5,'center_y':0.7}
+            size_hint_x: 0.75
+            max_text_length: 25
+
+        MDTextField:
+            id: pessoaEndereco
+            hint_text:"Endereço"
+            pos_hint: {'center_x':0.5,'center_y':0.6}
+            size_hint_x: 0.75
+            max_text_length: 25
+
+        MDTextField:
+            id: pessoaTelefone
+            hint_text:"Telefone"
+            pos_hint: {'center_x':0.5,'center_y':0.5}
+            size_hint_x: 0.75
+            max_text_length: 25
+
+        MDTextField:
+            id: pessoaEmail
+            hint_text:"Email"
+            pos_hint: {'center_x':0.5,'center_y':0.4}
+            size_hint_x: 0.75
+            max_text_length: 25
+
+        MDFillRoundFlatIconButton:
+            icon: "arrow-left-circle-outline"
+            theme_icon_color: "Custom"
+            text: "Voltar"
+            pos_hint: {'center_x':0.3,'center_y':0.1}
+            size_hint_x: 0.20
+            theme_text_color: "Custom"
+            md_bg_color: 0, 0, 0, 1
+            line_color: "white"
+            font_size: 25
+            icon_size: 30
+            on_release:
+                root.manager.transition.direction = 'right'
+                root.manager.current = "principal"
+
+        MDFillRoundFlatIconButton:
+            icon: "content-save-outline"
+            theme_icon_color: "Custom"
+            text: "Salvar"
+            pos_hint: {'center_x':0.7,'center_y':0.1}
+            size_hint_x: 0.20
+            theme_text_color: "Custom"
+            md_bg_color: 0.7, 0.7, 0.7, 1
+            line_color: "white"
+            font_size: 25
+            icon_size: 30
+            on_release:
