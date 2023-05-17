@@ -1,8 +1,14 @@
 GerenciadorTelas:
 
+    ConsultarPessoa:
+        name: "lista_pessoa"
     TelaPrincipal:
+        name: "principal"
     LoginTela:
+        name: "login"
     TelaPessoa:
+        name: "pessoa"
+
 
 <LoginTela>:
     name: "login"
@@ -59,8 +65,6 @@ GerenciadorTelas:
 <TelaPrincipal>:
     name: 'principal'
 
-
-
     MDFloatLayout:
 
         Image:
@@ -103,7 +107,6 @@ GerenciadorTelas:
 
     MDFloatLayout:
 
-
         MDLabel:
             text: "Cadastrar\nPessoa"
             halign: "center"
@@ -142,7 +145,7 @@ GerenciadorTelas:
             icon: "arrow-left-circle-outline"
             theme_icon_color: "Custom"
             text: "Voltar"
-            pos_hint: {'center_x':0.3,'center_y':0.1}
+            pos_hint: {'center_x':0.2,'center_y':0.1}
             size_hint_x: 0.20
             theme_text_color: "Custom"
             md_bg_color: 0, 0, 0, 1
@@ -157,11 +160,74 @@ GerenciadorTelas:
             icon: "content-save-outline"
             theme_icon_color: "Custom"
             text: "Salvar"
-            pos_hint: {'center_x':0.7,'center_y':0.1}
+            pos_hint: {'center_x':0.5,'center_y':0.1}
             size_hint_x: 0.20
             theme_text_color: "Custom"
-            md_bg_color: 0.7, 0.7, 0.7, 1
+            md_bg_color: 0, 0, 0, 1
             line_color: "white"
             font_size: 25
             icon_size: 30
             on_release:
+                root.salvar_dados(pessoaNome, pessoaEndereco, pessoaTelefone, pessoaEmail)
+
+
+        MDFillRoundFlatIconButton:
+            icon: "account-search-outline"
+            theme_icon_color: "Custom"
+            text: "Consultar"
+            pos_hint: {'center_x':0.8,'center_y':0.1}
+            size_hint_x: 0.20
+            theme_text_color: "Custom"
+            md_bg_color: 0, 0, 0, 1
+            line_color: "white"
+            font_size: 25
+            icon_size: 30
+            on_release:
+                root.manager.transition.direction = 'left'
+                root.manager.current = "lista_pessoa"
+
+<ConsultarPessoa>:
+    name: "lista_pessoa"
+    pessoa_list: pessoa_list
+
+    MDBoxLayout:
+        orientation: 'vertical'
+
+        MDLabel:
+            text: "Consultar Pessoas"
+            halign: "center"
+            pos_hint: {'center_x': 0.5, 'center_y': 0.9}
+            font_size:  40
+
+        BoxLayout:
+            orientation: 'horizontal'
+
+            MDTextField:
+                id: idpessoa
+                hint_text: "Pesquisar nome"
+                pos_hint: {'center_x': 0.5, 'center_y': 0.8}
+                size_hint_x: 0.75
+                max_text_length: 25
+
+            MDFillRoundFlatButton:
+                text: "Buscar"
+                pos_hint: {'center_x': 0.5, 'center_y': 0.8}
+                on_release: root.pesquisar(idpessoa.text)
+
+
+            MDFillRoundFlatButton:
+                text: "Cancelar"
+                pos_hint: {'center_x': 0.5, 'center_y': 0.8}
+                on_release:
+                    idpessoa.text = ''
+                    root.manager.transition.direction = 'right'
+                    root.manager.current = "pessoa"
+
+        ScrollView:
+            MDList:
+                id: pessoa_list
+
+<PessoaListItem>:
+    text: root.texto
+    IconLeftWidget:
+        icon: 'cog'

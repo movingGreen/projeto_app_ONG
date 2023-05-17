@@ -3,8 +3,10 @@ from kivymd.toast import toast
 from kivy.lang import Builder
 from kivymd.uix.screenmanager import ScreenManager
 from kivymd.uix.screen import MDScreen
-from kivy.properties import ObjectProperty
-from conexao_banco import conectarBancoECursor, commitEFecharConexao, selectUsuario
+from kivy.properties import ObjectProperty, StringProperty
+
+from Python_Kivy.kivymd.KivyMD.kivymd.uix.list import OneLineIconListItem
+from conexao_banco import conectarBancoECursor, commitEFecharConexao, selectUsuario, operar_pessoa
 
 
 # declarando a tela de login
@@ -50,6 +52,68 @@ class TelaPrincipal(MDScreen):
 
 
 class TelaPessoa(MDScreen):
+
+    def salvar_dados(self, idNome, idEndereco, idTelefone, idEmail):
+        print(idNome.text, idEndereco.text, idTelefone.text, idEmail.text)
+
+        [conn, cursor] = conectarBancoECursor()
+        operar_pessoa(cursor, "INSERT", dados={
+            'nome': idNome.text,
+            'endereco': idEndereco.text,
+            'telefone': idTelefone.text,
+            'email': idEmail.text
+        })
+        commitEFecharConexao(conn)
+
+        idNome.text = ''
+        idEndereco.text = ''
+        idTelefone.text = ''
+        idEmail.text = ''
+
+
+class PessoaListItem(OneLineIconListItem):
+    texto = StringProperty('')
+
+    def __init__(self, id_pessoa='', nome='', endereco='', telefone='', email='', **kwargs):
+        super(PessoaListItem, self).__init__(**kwargs)
+        self.texto = f"ID:{id_pessoa} | NOME:{nome} | endereco:{endereco} | telefone:{telefone} | email:{email}"
+
+
+class ConsultarPessoa(MDScreen):
+    pessoa_list = ObjectProperty(None)
+
+    def pesquisar(self, texto):
+        try:
+            [conn, cursor] = conectarBancoECursor()
+            print(texto)
+
+            lista_pessoas = operar_pessoa(cursor, 'SELECT', dados={'nome': texto.strip()})
+
+            print(lista_pessoas)
+            # Limpar a lista de pessoas
+            self.ids.pessoa_list.clear_widgets()
+
+            # Iterar sobre os resultados da consulta
+            for row in lista_pessoas:
+                id_pessoa, nome, endereco, telefone, email = row
+
+                print('Nome:', nome)
+
+                # Criar um novo item de aluno
+                pessoa_item = PessoaListItem(id_pessoa=str(id_pessoa),
+                                             nome=nome,
+                                             endereco=endereco,
+                                             telefone=telefone,
+                                             email=email)
+                # Adicionar o item à lista
+                self.ids.pessoa_list.add_widget(pessoa_item)
+
+            # Fechar a conexão com o banco de dados
+            commitEFecharConexao(conn)
+
+        except Exception as e:
+            toast(f"Error: {e}", duration=5)
+            print(e)
     pass
 
 
