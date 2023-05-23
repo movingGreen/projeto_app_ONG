@@ -5,7 +5,7 @@ from kivymd.uix.screenmanager import ScreenManager
 from kivymd.uix.screen import MDScreen
 from kivy.properties import ObjectProperty, StringProperty
 
-from Python_Kivy.kivymd.KivyMD.kivymd.uix.list import OneLineIconListItem
+from Python_Kivy.kivymd.KivyMD.kivymd.uix.list import OneLineAvatarIconListItem, IconRightWidget
 from conexao_banco import conectarBancoECursor, commitEFecharConexao, selectUsuario, operar_pessoa
 
 
@@ -71,12 +71,13 @@ class TelaPessoa(MDScreen):
         idEmail.text = ''
 
 
-class PessoaListItem(OneLineIconListItem):
+class PessoaListItem(OneLineAvatarIconListItem):
     texto = StringProperty('')
 
     def __init__(self, id_pessoa='', nome='', endereco='', telefone='', email='', **kwargs):
         super(PessoaListItem, self).__init__(**kwargs)
-        self.texto = f"ID:{id_pessoa} | NOME:{nome} | endereco:{endereco} | telefone:{telefone} | email:{email}"
+
+        self.texto = f"{id_pessoa} | {nome} | {endereco} | {telefone} | {email}"
 
 
 class ConsultarPessoa(MDScreen):
@@ -105,6 +106,9 @@ class ConsultarPessoa(MDScreen):
                                              endereco=endereco,
                                              telefone=telefone,
                                              email=email)
+
+                pessoa_item.add_widget(IconRightWidget("minus"))
+
                 # Adicionar o item à lista
                 self.ids.pessoa_list.add_widget(pessoa_item)
 

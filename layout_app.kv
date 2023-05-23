@@ -1,14 +1,14 @@
 GerenciadorTelas:
 
-    ConsultarPessoa:
-        name: "lista_pessoa"
     TelaPrincipal:
         name: "principal"
-    LoginTela:
-        name: "login"
+    ConsultarPessoa:
+        name: "lista_pessoa"
     TelaPessoa:
         name: "pessoa"
 
+    LoginTela:
+        name: "login"
 
 <LoginTela>:
     name: "login"
@@ -85,7 +85,7 @@ GerenciadorTelas:
             font_size: 30
             on_release:
                 root.manager.transition.direction = 'left'
-                root.manager.current = "pessoa"
+                root.manager.current = "lista_pessoa"
 
         MDFillRoundFlatIconButton:
             icon: "arrow-left-circle-outline"
@@ -154,7 +154,7 @@ GerenciadorTelas:
             icon_size: 30
             on_release:
                 root.manager.transition.direction = 'right'
-                root.manager.current = "principal"
+                root.manager.current = "lista_pessoa"
 
         MDFillRoundFlatIconButton:
             icon: "content-save-outline"
@@ -171,20 +171,6 @@ GerenciadorTelas:
                 root.salvar_dados(pessoaNome, pessoaEndereco, pessoaTelefone, pessoaEmail)
 
 
-        MDFillRoundFlatIconButton:
-            icon: "account-search-outline"
-            theme_icon_color: "Custom"
-            text: "Consultar"
-            pos_hint: {'center_x':0.8,'center_y':0.1}
-            size_hint_x: 0.20
-            theme_text_color: "Custom"
-            md_bg_color: 0, 0, 0, 1
-            line_color: "white"
-            font_size: 25
-            icon_size: 30
-            on_release:
-                root.manager.transition.direction = 'left'
-                root.manager.current = "lista_pessoa"
 
 <ConsultarPessoa>:
     name: "lista_pessoa"
@@ -221,7 +207,22 @@ GerenciadorTelas:
                 on_release:
                     idpessoa.text = ''
                     root.manager.transition.direction = 'right'
-                    root.manager.current = "pessoa"
+                    root.manager.current = "principal"
+
+        MDFillRoundFlatIconButton:
+            icon: "account-plus-outline"
+            theme_icon_color: "Custom"
+            text: "Cadastrar"
+#            pos_hint: {'center_x':0.8,'center_y':0.1}
+            size_hint_x: 0.20
+            theme_text_color: "Custom"
+            md_bg_color: 0, 0, 0, 1
+            line_color: "white"
+            font_size: 20
+            icon_size: 23
+            on_release:
+                root.manager.transition.direction = 'left'
+                root.manager.current = "pessoa"
 
         ScrollView:
             MDList:
@@ -229,5 +230,9 @@ GerenciadorTelas:
 
 <PessoaListItem>:
     text: root.texto
+
     IconLeftWidget:
         icon: 'cog'
+#
+#    IconRightWidget:
+#        icon: 'minus'
