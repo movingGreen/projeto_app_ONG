@@ -5,7 +5,7 @@ from kivymd.uix.screenmanager import ScreenManager
 from kivymd.uix.screen import MDScreen
 from kivy.properties import ObjectProperty, StringProperty
 
-from Python_Kivy.kivymd.KivyMD.kivymd.uix.list import OneLineAvatarIconListItem, IconRightWidget
+from Python_Kivy.kivymd.KivyMD.kivymd.uix.list import OneLineAvatarIconListItem, IconRightWidget, IconLeftWidget
 from conexao_banco import conectarBancoECursor, commitEFecharConexao, selectUsuario, operar_pessoa
 
 
@@ -71,17 +71,11 @@ class TelaPessoa(MDScreen):
         idEmail.text = ''
 
 
-class PessoaListItem(OneLineAvatarIconListItem):
-    texto = StringProperty('')
-
-    def __init__(self, id_pessoa='', nome='', endereco='', telefone='', email='', **kwargs):
-        super(PessoaListItem, self).__init__(**kwargs)
-
-        self.texto = f"{id_pessoa} | {nome} | {endereco} | {telefone} | {email}"
-
-
 class ConsultarPessoa(MDScreen):
     pessoa_list = ObjectProperty(None)
+
+    def excluir(self, nomePessoa=''):
+        print(nome)
 
     def pesquisar(self, texto):
         try:
@@ -100,14 +94,16 @@ class ConsultarPessoa(MDScreen):
 
                 print('Nome:', nome)
 
-                # Criar um novo item de aluno
-                pessoa_item = PessoaListItem(id_pessoa=str(id_pessoa),
-                                             nome=nome,
-                                             endereco=endereco,
-                                             telefone=telefone,
-                                             email=email)
-
-                pessoa_item.add_widget(IconRightWidget("minus"))
+                pessoa_item = OneLineAvatarIconListItem(
+                                IconLeftWidget(
+                                    icon="cog"
+                                ),
+                                IconRightWidget(
+                                    icon="minus",
+                                    on_press= self.excluir
+                                ),
+                                text=f"{nome} | {endereco} | {telefone} | {email}",
+                            )
 
                 # Adicionar o item à lista
                 self.ids.pessoa_list.add_widget(pessoa_item)

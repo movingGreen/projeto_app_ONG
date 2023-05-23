@@ -46,11 +46,11 @@ def operar_pessoa(cursor, operador, dados=None):
 
     if operador == "SELECT":
         if not dados['nome']:
-            cursor.execute(""" SELECT * FROM PESSOA LIMIT 20""")
+            cursor.execute(""" SELECT * FROM PESSOA ORDER BY Nome LIMIT 20""")
             resposta = cursor.fetchall()
             return resposta
 
-        cursor.execute(""" SELECT * FROM PESSOA WHERE Nome LIKE ? LIMIT 20""", (dados['nome'],))
+        cursor.execute(""" SELECT * FROM PESSOA WHERE Nome LIKE ? ORDER BY Nome LIMIT 20""", (dados['nome'],))
         resposta = cursor.fetchall()
         return resposta
 

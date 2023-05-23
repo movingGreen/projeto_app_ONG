@@ -206,6 +206,7 @@ GerenciadorTelas:
                 pos_hint: {'center_x': 0.5, 'center_y': 0.8}
                 on_release:
                     idpessoa.text = ''
+                    pessoa_list.clear_widgets()
                     root.manager.transition.direction = 'right'
                     root.manager.current = "principal"
 
@@ -218,21 +219,12 @@ GerenciadorTelas:
             theme_text_color: "Custom"
             md_bg_color: 0, 0, 0, 1
             line_color: "white"
-            font_size: 20
-            icon_size: 23
+            font_size: 15
+            icon_size: 20
             on_release:
                 root.manager.transition.direction = 'left'
                 root.manager.current = "pessoa"
 
-        ScrollView:
+        MDScrollView:
             MDList:
                 id: pessoa_list
-
-<PessoaListItem>:
-    text: root.texto
-
-    IconLeftWidget:
-        icon: 'cog'
-#
-#    IconRightWidget:
-#        icon: 'minus'
