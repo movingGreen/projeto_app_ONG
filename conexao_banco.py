@@ -71,7 +71,7 @@ def operar_pessoa(cursor, operador, dados=None):
 
     if operador == "DELETE":
         cursor.execute("""
-                        DELETE FROM PESSOA WHERE Nome = ?""", dados['nome'])
+                        DELETE FROM PESSOA WHERE Nome = ?""", (dados['nome'],))
         print("DELETE feito com sucesso")
 
 

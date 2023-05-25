@@ -1,11 +1,12 @@
+from kivy.event import EventDispatcher
 from kivymd.app import MDApp
 from kivymd.toast import toast
 from kivy.lang import Builder
+from kivymd.uix.list import OneLineAvatarIconListItem
 from kivymd.uix.screenmanager import ScreenManager
 from kivymd.uix.screen import MDScreen
-from kivy.properties import ObjectProperty, StringProperty, partial
+from kivy.properties import ObjectProperty, StringProperty
 
-from Python_Kivy.kivymd.KivyMD.kivymd.uix.list import OneLineAvatarIconListItem, IconRightWidget, IconLeftWidget
 from conexao_banco import conectarBancoECursor, commitEFecharConexao, selectUsuario, operar_pessoa
 
 
@@ -51,6 +52,10 @@ class TelaPrincipal(MDScreen):
     pass
 
 
+class TelaEditarPessoa(MDScreen):
+    pass
+
+
 class TelaPessoa(MDScreen):
 
     def salvar_dados(self, idNome, idEndereco, idTelefone, idEmail):
@@ -71,11 +76,33 @@ class TelaPessoa(MDScreen):
         idEmail.text = ''
 
 
+class PessoaListItem(OneLineAvatarIconListItem, EventDispatcher):
+    texto = StringProperty('')
+
+    def __init__(self, nome='', endereco='', telefone='', email='', **kwargs):
+        super(PessoaListItem, self).__init__(**kwargs)
+        # self.id_pessoa = id_pessoa
+        self.nome = nome
+        self.endereco = endereco
+        self.telefone = telefone
+        self.email = email
+        self.texto = f"{nome} | {endereco} | {telefone} | {email}"
+
+    def deletar(self):
+        try:
+            con, cursor = conectarBancoECursor()
+
+            operar_pessoa(cursor, 'DELETE', dados={'nome': self.nome})
+            commitEFecharConexao(con)
+            toast("Registro deletado", duration=5)
+
+        except Exception as e:
+            toast(f"Error: {e}", duration=5)
+            print(e)
+
+
 class ConsultarPessoa(MDScreen):
     pessoa_list = ObjectProperty(None)
-
-    def excluir(self, nomePessoa=''):
-        print(nomePessoa)
 
     def pesquisar(self, texto):
         try:
@@ -83,8 +110,8 @@ class ConsultarPessoa(MDScreen):
             print(texto)
 
             lista_pessoas = operar_pessoa(cursor, 'SELECT', dados={'nome': texto.strip()})
-
             print(lista_pessoas)
+
             # Limpar a lista de pessoas
             self.ids.pessoa_list.clear_widgets()
 
@@ -94,16 +121,7 @@ class ConsultarPessoa(MDScreen):
 
                 print('Nome:', nome)
 
-                pessoa_item = OneLineAvatarIconListItem(
-                                IconLeftWidget(
-                                    icon="cog"
-                                ),
-                                IconRightWidget(
-                                    icon="minus",
-                                    on_press=partial(self.excluir, nomePessoa=nome)
-                                ),
-                                text=f"{nome} | {endereco} | {telefone} | {email}",
-                            )
+                pessoa_item = PessoaListItem(nome, endereco, telefone, email)
 
                 # Adicionar o item à lista
                 self.ids.pessoa_list.add_widget(pessoa_item)
@@ -123,7 +141,12 @@ class GerenciadorTelas(ScreenManager):
 
 class MyApp(MDApp):
     def build(self):
-        return Builder.load_file("layout_app.kv")
+        Builder.load_file("./telas/LoginTela.kv")
+        Builder.load_file("./telas/TelaPrincipal.kv")
+        Builder.load_file("./telas/TelaConsultarPessoa.kv")
+        Builder.load_file("./telas/TelaPessoa.kv")
+
+        return Builder.load_file("./telas/GerenciadorTelas.kv")
 
 
 if __name__ == "__main__":
