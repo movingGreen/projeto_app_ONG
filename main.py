@@ -3,7 +3,7 @@ from kivymd.toast import toast
 from kivy.lang import Builder
 from kivymd.uix.screenmanager import ScreenManager
 from kivymd.uix.screen import MDScreen
-from kivy.properties import ObjectProperty, StringProperty
+from kivy.properties import ObjectProperty, StringProperty, partial
 
 from Python_Kivy.kivymd.KivyMD.kivymd.uix.list import OneLineAvatarIconListItem, IconRightWidget, IconLeftWidget
 from conexao_banco import conectarBancoECursor, commitEFecharConexao, selectUsuario, operar_pessoa
@@ -75,7 +75,7 @@ class ConsultarPessoa(MDScreen):
     pessoa_list = ObjectProperty(None)
 
     def excluir(self, nomePessoa=''):
-        print(nome)
+        print(nomePessoa)
 
     def pesquisar(self, texto):
         try:
@@ -100,7 +100,7 @@ class ConsultarPessoa(MDScreen):
                                 ),
                                 IconRightWidget(
                                     icon="minus",
-                                    on_press= self.excluir
+                                    on_press=partial(self.excluir, nomePessoa=nome)
                                 ),
                                 text=f"{nome} | {endereco} | {telefone} | {email}",
                             )
