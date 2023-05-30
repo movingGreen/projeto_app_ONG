@@ -1,6 +1,4 @@
 from kivy.event import EventDispatcher
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.popup import Popup
 from kivymd.app import MDApp
 from kivymd.toast import toast
 from kivy.lang import Builder
@@ -8,7 +6,7 @@ from kivymd.uix.button import MDFillRoundFlatIconButton
 from kivymd.uix.list import OneLineAvatarIconListItem
 from kivymd.uix.screenmanager import ScreenManager
 from kivymd.uix.screen import MDScreen
-from kivy.properties import ObjectProperty, StringProperty, partial
+from kivy.properties import ObjectProperty, StringProperty
 
 from conexao_banco import conectarBancoECursor, commitEFecharConexao, selectUsuario, operar_pessoa
 
@@ -94,30 +92,6 @@ class PessoaListItem(OneLineAvatarIconListItem, EventDispatcher):
         self.email = email
         self.texto = f"{nome} | {endereco} | {telefone} | {email}"
         self.btnBuscar = btnBuscar
-
-    def confirmation_popup(self):
-        btn1 = MDFillRoundFlatIconButton(
-                    icon="window-close",
-                    theme_icon_color="Custom",
-                    text="CANCELAR",
-                    on_release=print('cancelar'),
-                )
-        btn2 = MDFillRoundFlatIconButton(
-                    icon="check",
-                    theme_icon_color="Custom",
-                    text="CONFIRMAR",
-                    on_release=print('confirmar'),
-                )
-        boxed_layout = BoxLayout(orientation="horizontal")
-        boxed_layout.add_widget(btn1)
-        boxed_layout.add_widget(btn2)
-
-        pop = Popup(title='Confirmar exclusão', content=boxed_layout)
-
-        # btn1.bind(on_release=partial(doit, pop))  # bind to whatever action is being confirmed
-        # btn2.bind(on_release=pop.dismiss)
-
-        pop.open()
 
     def deletar(self):
 
