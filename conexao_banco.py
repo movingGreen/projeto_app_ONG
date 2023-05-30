@@ -50,7 +50,7 @@ def operar_pessoa(cursor, operador, dados=None):
             resposta = cursor.fetchall()
             return resposta
 
-        cursor.execute(""" SELECT * FROM PESSOA WHERE Nome LIKE ? ORDER BY Nome LIMIT 20""", (dados['nome'],))
+        cursor.execute(""" SELECT * FROM PESSOA WHERE Nome LIKE ? ORDER BY Nome LIMIT 20""", ('%' + dados['nome'] + '%',))
         resposta = cursor.fetchall()
         return resposta
 
@@ -73,8 +73,6 @@ def operar_pessoa(cursor, operador, dados=None):
         cursor.execute("""
                         DELETE FROM PESSOA WHERE Nome = ?""", (dados['nome'],))
         print("DELETE feito com sucesso")
-
-
 
 
 def commitEFecharConexao(conector):

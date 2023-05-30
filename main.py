@@ -1,11 +1,14 @@
 from kivy.event import EventDispatcher
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.popup import Popup
 from kivymd.app import MDApp
 from kivymd.toast import toast
 from kivy.lang import Builder
+from kivymd.uix.button import MDFillRoundFlatIconButton
 from kivymd.uix.list import OneLineAvatarIconListItem
 from kivymd.uix.screenmanager import ScreenManager
 from kivymd.uix.screen import MDScreen
-from kivy.properties import ObjectProperty, StringProperty
+from kivy.properties import ObjectProperty, StringProperty, partial
 
 from conexao_banco import conectarBancoECursor, commitEFecharConexao, selectUsuario, operar_pessoa
 
@@ -33,17 +36,17 @@ class LoginTela(MDScreen):
                 self.manager.transition.direction = "left"
                 self.manager.current = "principal"
 
-                #self.labelMensagem.text = ""
+                # self.labelMensagem.text = ""
 
             else:
                 toast("Login ou senha inválidos", duration=10)
                 print("---Acesso negado---")
 
-                #self.labelMensagem.text = "Senha Incorreta"
+                # self.labelMensagem.text = "Senha Incorreta"
         except:
             print("###Erro de BD###")
             toast("Login ou senha inválidos", duration=10)
-            #self.labelMensagem.text = "Senha Incorreta"
+            # self.labelMensagem.text = "Senha Incorreta"
         finally:
             commitEFecharConexao(conector)
 
@@ -75,11 +78,14 @@ class TelaPessoa(MDScreen):
         idTelefone.text = ''
         idEmail.text = ''
 
+    def focus_save_button(self):
+        self.ids.salvar_button.focus = True
+
 
 class PessoaListItem(OneLineAvatarIconListItem, EventDispatcher):
     texto = StringProperty('')
 
-    def __init__(self, nome='', endereco='', telefone='', email='', **kwargs):
+    def __init__(self, nome='', endereco='', telefone='', email='', btnBuscar=None, **kwargs):
         super(PessoaListItem, self).__init__(**kwargs)
         # self.id_pessoa = id_pessoa
         self.nome = nome
@@ -87,13 +93,39 @@ class PessoaListItem(OneLineAvatarIconListItem, EventDispatcher):
         self.telefone = telefone
         self.email = email
         self.texto = f"{nome} | {endereco} | {telefone} | {email}"
+        self.btnBuscar = btnBuscar
+
+    def confirmation_popup(self):
+        btn1 = MDFillRoundFlatIconButton(
+                    icon="window-close",
+                    theme_icon_color="Custom",
+                    text="CANCELAR",
+                    on_release=print('cancelar'),
+                )
+        btn2 = MDFillRoundFlatIconButton(
+                    icon="check",
+                    theme_icon_color="Custom",
+                    text="CONFIRMAR",
+                    on_release=print('confirmar'),
+                )
+        boxed_layout = BoxLayout(orientation="horizontal")
+        boxed_layout.add_widget(btn1)
+        boxed_layout.add_widget(btn2)
+
+        pop = Popup(title='Confirmar exclusão', content=boxed_layout)
+
+        # btn1.bind(on_release=partial(doit, pop))  # bind to whatever action is being confirmed
+        # btn2.bind(on_release=pop.dismiss)
+
+        pop.open()
 
     def deletar(self):
+
         try:
             con, cursor = conectarBancoECursor()
-
             operar_pessoa(cursor, 'DELETE', dados={'nome': self.nome})
             commitEFecharConexao(con)
+            self.btnBuscar.trigger_action()
             toast("Registro deletado", duration=5)
 
         except Exception as e:
@@ -115,13 +147,15 @@ class ConsultarPessoa(MDScreen):
             # Limpar a lista de pessoas
             self.ids.pessoa_list.clear_widgets()
 
+            btnBuscar = self.ids.button_buscar
+
             # Iterar sobre os resultados da consulta
             for row in lista_pessoas:
                 id_pessoa, nome, endereco, telefone, email = row
 
                 print('Nome:', nome)
 
-                pessoa_item = PessoaListItem(nome, endereco, telefone, email)
+                pessoa_item = PessoaListItem(nome, endereco, telefone, email, btnBuscar)
 
                 # Adicionar o item à lista
                 self.ids.pessoa_list.add_widget(pessoa_item)
@@ -132,6 +166,7 @@ class ConsultarPessoa(MDScreen):
         except Exception as e:
             toast(f"Error: {e}", duration=5)
             print(e)
+
     pass
 
 
@@ -143,7 +178,7 @@ class MyApp(MDApp):
     def build(self):
         Builder.load_file("./telas/LoginTela.kv")
         Builder.load_file("./telas/TelaPrincipal.kv")
-        Builder.load_file("./telas/TelaConsultarPessoa.kv")
+        Builder.load_file("./telas/ConsultarPessoa.kv")
         Builder.load_file("./telas/TelaPessoa.kv")
 
         return Builder.load_file("./telas/GerenciadorTelas.kv")
