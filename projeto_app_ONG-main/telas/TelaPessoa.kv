@@ -1,0 +1,78 @@
+<TelaPessoa>:
+    name: 'pessoa'
+
+    MDFloatLayout:
+
+        MDLabel:
+            text: "Cadastrar\nPessoa"
+            halign: "center"
+            pos_hint: {'center_x': 0.5, 'center_y': 0.9}
+            font_size:  40
+
+        MDTextField:
+            id: pessoaNome
+            hint_text:"Nome"
+            write_tab: False
+            multiline: False
+            pos_hint: {'center_x':0.5,'center_y':0.7}
+            size_hint_x: 0.75
+            max_text_length: 25
+
+        MDTextField:
+            id: pessoaEndereco
+            hint_text:"Endereço"
+            write_tab: False
+            multiline: False
+            pos_hint: {'center_x':0.5,'center_y':0.6}
+            size_hint_x: 0.75
+            max_text_length: 25
+
+        MDTextField:
+            id: pessoaTelefone
+            hint_text:"Telefone"
+            write_tab: False
+            multiline: False
+            pos_hint: {'center_x':0.5,'center_y':0.5}
+            size_hint_x: 0.75
+            max_text_length: 25
+
+        MDTextField:
+            id: pessoaEmail
+            hint_text:"Email"
+            write_tab: False
+            multiline: False
+            pos_hint: {'center_x':0.5,'center_y':0.4}
+            size_hint_x: 0.75
+            max_text_length: 25
+
+        MDFillRoundFlatIconButton:
+            icon: "arrow-left-circle-outline"
+            theme_icon_color: "Custom"
+            text: "Voltar"
+            pos_hint: {'center_x':0.2,'center_y':0.1}
+            size_hint_x: 0.20
+            theme_text_color: "Custom"
+            md_bg_color: 0, 0, 0, 1
+            line_color: "white"
+            font_size: 25
+            icon_size: 30
+            on_release:
+                root.manager.transition.direction = 'right'
+                root.manager.current = "lista_pessoa"
+
+        MDFillRoundFlatIconButton:
+            id: salvar_button
+            icon: "content-save-outline"
+            theme_icon_color: "Custom"
+            text: "Salvar"
+            pos_hint: {'center_x':0.5,'center_y':0.1}
+            size_hint_x: 0.20
+            theme_text_color: "Custom"
+            md_bg_color: 0, 0, 0, 1
+            line_color: "white"
+            font_size: 25
+            icon_size: 30
+            on_release:
+                root.salvar_dados(pessoaNome, pessoaEndereco, pessoaTelefone, pessoaEmail)
+                root.manager.transition.direction = 'right'
+                root.manager.current = "lista_pessoa"

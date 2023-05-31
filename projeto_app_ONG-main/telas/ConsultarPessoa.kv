@@ -1,0 +1,69 @@
+<ConsultarPessoa>:
+    name: "lista_pessoa"
+    pessoa_list: pessoa_list
+    button_buscar: button_buscar
+
+    MDBoxLayout:
+        orientation: 'vertical'
+
+        MDLabel:
+            text: "Consultar Pessoas"
+            halign: "center"
+            pos_hint: {'center_x': 0.5, 'center_y': 0.9}
+            font_size:  40
+
+        BoxLayout:
+            orientation: 'horizontal'
+
+            MDTextField:
+                id: idpessoa
+                hint_text: "Pesquisar nome"
+                pos_hint: {'center_x': 0.5, 'center_y': 0.8}
+                size_hint_x: 0.75
+                max_text_length: 25
+
+            MDFillRoundFlatButton:
+                id: button_buscar
+                text: "Buscar"
+                pos_hint: {'center_x': 0.5, 'center_y': 0.8}
+                on_release: root.pesquisar(idpessoa.text)
+
+
+            MDFillRoundFlatButton:
+                text: "Cancelar"
+                pos_hint: {'center_x': 0.5, 'center_y': 0.8}
+                on_release:
+                    idpessoa.text = ''
+                    pessoa_list.clear_widgets()
+                    root.manager.transition.direction = 'right'
+                    root.manager.current = "principal"
+
+        MDFillRoundFlatIconButton:
+            icon: "account-plus-outline"
+            theme_icon_color: "Custom"
+            text: "Cadastrar"
+            size_hint_x: 0.20
+            theme_text_color: "Custom"
+            md_bg_color: 0, 0, 0, 1
+            line_color: "white"
+            font_size: 15
+            icon_size: 20
+            on_release:
+                root.manager.transition.direction = 'left'
+                root.manager.current = "pessoa"
+
+        MDScrollView:
+            MDList:
+                id: pessoa_list
+
+<PessoaListItem>:
+    id: pessoa
+    text: root.texto
+
+    IconLeftWidget:
+        icon: 'cog'
+
+    MDIconButton:
+        icon: "minus"
+        pos_hint: {"center_x": .95, "center_y": .5}
+        on_release: root.deletar()

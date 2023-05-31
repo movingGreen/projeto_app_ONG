@@ -1,0 +1,51 @@
+<LoginTela>:
+    name: "login"
+    usuario: usuario
+    senha: senha
+
+    MDFloatLayout:
+
+        Image:
+            source: "images/logo.png"
+            pos_hint: {'center_x':0.5,'center_y':0.88}
+            size_hint_y: 0.25
+
+        MDLabel:
+            text: "Gerenciar Inventário"
+            halign: "center"
+            pos_hint: {'center_x': 0.5, 'center_y': 0.75}
+            font_size:  35
+
+        MDTextField:
+            id: usuario
+            hint_text:"Login"
+            pos_hint: {'center_x':0.5,'center_y':0.6}
+            size_hint_x: 0.75
+            max_text_length: 25
+
+        MDTextField:
+            id: senha
+            hint_text:"Senha"
+            pos_hint: {'center_x':0.5,'center_y':0.45}
+            size_hint_x: 0.75
+            max_text_length: 25
+            password: True
+
+        MDFillRoundFlatIconButton:
+            icon: "check"
+            theme_icon_color: "Primary"
+            text: "Entrar"
+            pos_hint: {'center_x':0.5,'center_y':0.2}
+            size_hint_x: 0.40
+            theme_text_color: "Primary"
+            md_bg_color: 0.7, 0.7, 0.7, 1
+            line_color: "black"
+            font_size: 25
+            icon_size: 40
+            on_release: root.validarLogin()
+
+        MDTextButton:
+            text: "Esqueci minha senha"
+            pos_hint: {'center_x':0.5,'center_y':0.1}
+            font_size: 25
+
