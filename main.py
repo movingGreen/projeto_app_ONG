@@ -1,4 +1,5 @@
 from kivy.event import EventDispatcher
+from kivy.uix.popup import Popup
 from kivymd.app import MDApp
 from kivymd.toast import toast
 from kivy.lang import Builder
@@ -76,35 +77,6 @@ class TelaPessoa(MDScreen):
         idTelefone.text = ''
         idEmail.text = ''
 
-    def focus_save_button(self):
-        self.ids.salvar_button.focus = True
-
-
-class PessoaListItem(OneLineAvatarIconListItem, EventDispatcher):
-    texto = StringProperty('')
-
-    def __init__(self, nome='', endereco='', telefone='', email='', btnBuscar=None, **kwargs):
-        super(PessoaListItem, self).__init__(**kwargs)
-        # self.id_pessoa = id_pessoa
-        self.nome = nome
-        self.endereco = endereco
-        self.telefone = telefone
-        self.email = email
-        self.texto = f"{nome} | {endereco} | {telefone} | {email}"
-        self.btnBuscar = btnBuscar
-
-    def deletar(self):
-
-        try:
-            con, cursor = conectarBancoECursor()
-            operar_pessoa(cursor, 'DELETE', dados={'nome': self.nome})
-            commitEFecharConexao(con)
-            self.btnBuscar.trigger_action()
-            toast("Registro deletado", duration=5)
-
-        except Exception as e:
-            toast(f"Error: {e}", duration=5)
-            print(e)
 
 
 class ConsultarPessoa(MDScreen):
@@ -129,7 +101,7 @@ class ConsultarPessoa(MDScreen):
 
                 print('Nome:', nome)
 
-                pessoa_item = PessoaListItem(nome, endereco, telefone, email, btnBuscar)
+                pessoa_item = PessoaListItem(id_pessoa, nome, endereco, telefone, email, btnBuscar)
 
                 # Adicionar o item à lista
                 self.ids.pessoa_list.add_widget(pessoa_item)
@@ -144,6 +116,49 @@ class ConsultarPessoa(MDScreen):
     pass
 
 
+class PessoaListItem(OneLineAvatarIconListItem, EventDispatcher):
+    texto = StringProperty('')
+
+    def __init__(self, id_pessoa, nome='', endereco='', telefone='', email='', btnBuscar=None, **kwargs):
+        super(PessoaListItem, self).__init__(**kwargs)
+        self.id_pessoa = id_pessoa
+        self.nome = nome
+        self.endereco = endereco
+        self.telefone = telefone
+        self.email = email
+        self.texto = f"{nome} | {endereco} | {telefone} | {email}"
+        self.btnBuscar = btnBuscar
+
+    def deletar(self):
+        def confirmar_exclusao():
+            try:
+                con, cursor = conectarBancoECursor()
+                operar_pessoa(cursor, 'DELETE', dados={'nome': self.nome})
+                commitEFecharConexao(con)
+                self.btnBuscar.trigger_action()
+                toast("Registro deletado", duration=5)
+
+            except Exception as e:
+                toast(f"Error: {e}", duration=5)
+                print(e)
+
+        popup = ConfirmationPopup(callback=confirmar_exclusao, nome_registro=f"id: {self.id_pessoa} '{self.nome}'")
+        popup.open()
+
+
+class ConfirmationPopup(Popup):
+    texto_popup = ObjectProperty()
+
+    def __init__(self, callback, nome_registro,  **kwargs):
+        super(ConfirmationPopup, self).__init__(**kwargs)
+        self.callback = callback
+        self.ids.texto_popup.text = f"Deseja mesmo excluir o registro {nome_registro}?"
+
+    def confirm(self):
+        self.callback()
+        self.dismiss()
+
+
 class GerenciadorTelas(ScreenManager):
     pass
 
@@ -154,6 +169,8 @@ class MyApp(MDApp):
         Builder.load_file("./telas/TelaPrincipal.kv")
         Builder.load_file("./telas/ConsultarPessoa.kv")
         Builder.load_file("./telas/TelaPessoa.kv")
+        Builder.load_file("./telas/EditarPessoa.kv")
+        Builder.load_file("./telas/Popup.kv")
 
         return Builder.load_file("./telas/GerenciadorTelas.kv")
 

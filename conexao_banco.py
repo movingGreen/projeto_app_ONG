@@ -64,8 +64,8 @@ def operar_pessoa(cursor, operador, dados=None):
     if operador == "UPDATE":
         cursor.execute("""
                         UPDATE PESSOA set Nome = ?, Endereco = ?, Telefone = ?, Email = ?
-                        WHERE Nome = ?""",
-                       (dados['nome'], dados['endereco'], dados['telefone'], dados['email'], dados['nome']))
+                        WHERE ID_Pessoa = ?""",
+                       (dados['nome'], dados['endereco'], dados['telefone'], dados['email'], dados['id_pessoa']))
 
         print("UPDATE feito com sucesso")
 
