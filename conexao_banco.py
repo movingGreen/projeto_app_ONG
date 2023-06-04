@@ -15,32 +15,54 @@ def conectarBancoECursor():
     return [conn, cursor]
 
 
+def commitEFecharConexao(conector):
+    # gravando no banco de dados os comandos
+    conector.commit()
+    # fechando conexão com o banco de dados
+    conector.close()
+
+    print("Comandos salvos e conexão fechada")
+
+
 # criando as tabelas (schema)
-def criarTabelas(cursor):
+def criarTabelas():
+    conn, cursor = conectarBancoECursor()
+
     for comando, script in scriptsCriarTabelas.items():
         cursor.execute(script)
         print("Tabela " + comando + " criada com sucesso")
         
     print("Tabelas criadas com sucesso")
 
+    commitEFecharConexao(conn)
+
 
 # criando um usuarion admin
-def insertUsuario(cursor, login, senha):
+def insertUsuario(login, senha):
+    conn, cursor = conectarBancoECursor()
+
     cursor.execute("""
                     INSERT INTO USUARIO ( Login, Senha)
                     VALUES (?, ?)""", (login,  senha))
     
     print("Comandos feitos com sucesso")
+    commitEFecharConexao(conn)
 
 
-def selectUsuario(cursor, login):
+def selectUsuario(login):
+    conn, cursor = conectarBancoECursor()
+
     cursor.execute(""" SELECT * FROM USUARIO WHERE login = ?""", (login,))
     resposta = cursor.fetchall()
+
+    commitEFecharConexao(conn)
     
     return resposta
 
 
-def operar_pessoa(cursor, operador, dados=None):
+def operar_pessoa(operador, dados=None):
+    conn, cursor = conectarBancoECursor()
+
     if dados is None and (operador != "SELECT"):
         return print("dados vazio")
 
@@ -48,10 +70,14 @@ def operar_pessoa(cursor, operador, dados=None):
         if not dados['nome']:
             cursor.execute(""" SELECT * FROM PESSOA ORDER BY Nome LIMIT 20""")
             resposta = cursor.fetchall()
+
+            commitEFecharConexao(conn)
             return resposta
 
         cursor.execute(""" SELECT * FROM PESSOA WHERE Nome LIKE ? ORDER BY Nome LIMIT 20""", ('%' + dados['nome'] + '%',))
         resposta = cursor.fetchall()
+
+        commitEFecharConexao(conn)
         return resposta
 
     if operador == "INSERT":
@@ -74,14 +100,7 @@ def operar_pessoa(cursor, operador, dados=None):
                         DELETE FROM PESSOA WHERE Nome = ?""", (dados['nome'],))
         print("DELETE feito com sucesso")
 
-
-def commitEFecharConexao(conector):
-    # gravando no banco de dados os comandos
-    conector.commit()
-    # fechando conexão com o banco de dados
-    conector.close()
-    
-    print("Comandos salvos e conexão fechada")
+    commitEFecharConexao(conn)
 
 
 

@@ -4,6 +4,7 @@
     MDFloatLayout:
 
         MDLabel:
+            id: pessoaLabel
             text: "Cadastrar\nPessoa"
             halign: "center"
             pos_hint: {'center_x': 0.5, 'center_y': 0.9}
@@ -72,7 +73,5 @@
             line_color: "white"
             font_size: 25
             icon_size: 30
-            on_release:
-                root.salvar_dados(pessoaNome, pessoaEndereco, pessoaTelefone, pessoaEmail)
-                root.manager.transition.direction = 'right'
-                root.manager.current = "lista_pessoa"
+            on_release: root.salvar_ou_editar_dados()
+

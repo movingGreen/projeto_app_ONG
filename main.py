@@ -3,13 +3,12 @@ from kivy.uix.popup import Popup
 from kivymd.app import MDApp
 from kivymd.toast import toast
 from kivy.lang import Builder
-from kivymd.uix.button import MDFillRoundFlatIconButton
 from kivymd.uix.list import OneLineAvatarIconListItem
 from kivymd.uix.screenmanager import ScreenManager
 from kivymd.uix.screen import MDScreen
 from kivy.properties import ObjectProperty, StringProperty
 
-from conexao_banco import conectarBancoECursor, commitEFecharConexao, selectUsuario, operar_pessoa
+from conexao_banco import selectUsuario, operar_pessoa
 
 
 # declarando a tela de login
@@ -23,11 +22,9 @@ class LoginTela(MDScreen):
         usuarioText = self.usuario.text
         senhaText = self.senha.text
 
-        # conectando com o banco de dados
-        conector, cursor = conectarBancoECursor()
         try:
             # pesquisando no BD o usuario
-            [usuarioBD] = selectUsuario(cursor, usuarioText)
+            [usuarioBD] = selectUsuario(usuarioText)
 
             if senhaText == usuarioBD[2]:
                 print("---Acesso permitido---")
@@ -46,8 +43,6 @@ class LoginTela(MDScreen):
             print("###Erro de BD###")
             toast("Login ou senha inválidos", duration=10)
             # self.labelMensagem.text = "Senha Incorreta"
-        finally:
-            commitEFecharConexao(conector)
 
 
 class TelaPrincipal(MDScreen):
@@ -59,35 +54,72 @@ class TelaEditarPessoa(MDScreen):
 
 
 class TelaPessoa(MDScreen):
+    editar = False
+    id_pessoa_editar = 0
 
-    def salvar_dados(self, idNome, idEndereco, idTelefone, idEmail):
-        print(idNome.text, idEndereco.text, idTelefone.text, idEmail.text)
+    def salvar_ou_editar_dados(self):
+        if self.editar:
+            self.editar_dados()
+        else:
+            self.salvar_dados()
 
-        [conn, cursor] = conectarBancoECursor()
-        operar_pessoa(cursor, "INSERT", dados={
-            'nome': idNome.text,
-            'endereco': idEndereco.text,
-            'telefone': idTelefone.text,
-            'email': idEmail.text
+    def editar_dados(self):
+        print('Salvando:', self.ids.pessoaNome.text, self.ids.pessoaEndereco.text, self.ids.pessoaTelefone.text,
+              self.ids.pessoaEmail.text)
+
+        operar_pessoa("UPDATE", dados={
+            'nome': self.ids.pessoaNome.text,
+            'endereco': self.ids.pessoaEndereco.text,
+            'telefone': self.ids.pessoaTelefone.text,
+            'email': self.ids.pessoaEmail.text,
+            'id_pessoa': self.id_pessoa_editar
         })
-        commitEFecharConexao(conn)
 
-        idNome.text = ''
-        idEndereco.text = ''
-        idTelefone.text = ''
-        idEmail.text = ''
+        self.ids.pessoaNome.text = ''
+        self.ids.pessoaEndereco.text = ''
+        self.ids.pessoaTelefone.text = ''
+        self.ids.pessoaEmail.text = ''
+        self.id_pessoa_editar = 0
 
+        self.manager.transition.direction = 'right'
+        self.manager.current = "lista_pessoa"
+
+    def salvar_dados(self):
+        print('Salvando:', self.ids.pessoaNome.text, self.ids.pessoaEndereco.text, self.ids.pessoaTelefone.text, self.ids.pessoaEmail.text)
+
+        operar_pessoa("INSERT", dados={
+            'nome': self.ids.pessoaNome.text,
+            'endereco': self.ids.pessoaEndereco.text,
+            'telefone': self.ids.pessoaTelefone.text,
+            'email': self.ids.pessoaEmail.text
+        })
+
+        self.ids.pessoaNome.text = ''
+        self.ids.pessoaEndereco.text = ''
+        self.ids.pessoaTelefone.text = ''
+        self.ids.pessoaEmail.text = ''
+
+        self.manager.transition.direction = 'right'
+        self.manager.current = "lista_pessoa"
 
 
 class ConsultarPessoa(MDScreen):
     pessoa_list = ObjectProperty(None)
 
+    def cadastrar(self):
+        tela_pessoa = self.manager.get_screen('pessoa')
+
+        tela_pessoa.ids['pessoaLabel'].text = 'Cadastrar\nPessoa'
+        tela_pessoa.editar = False
+        self.manager.transition.direction = 'left'
+        self.manager.current = 'pessoa'
+
+
     def pesquisar(self, texto):
         try:
-            [conn, cursor] = conectarBancoECursor()
             print(texto)
 
-            lista_pessoas = operar_pessoa(cursor, 'SELECT', dados={'nome': texto.strip()})
+            lista_pessoas = operar_pessoa('SELECT', dados={'nome': texto.strip()})
             print(lista_pessoas)
 
             # Limpar a lista de pessoas
@@ -98,22 +130,14 @@ class ConsultarPessoa(MDScreen):
             # Iterar sobre os resultados da consulta
             for row in lista_pessoas:
                 id_pessoa, nome, endereco, telefone, email = row
-
-                print('Nome:', nome)
-
                 pessoa_item = PessoaListItem(id_pessoa, nome, endereco, telefone, email, btnBuscar)
 
                 # Adicionar o item à lista
                 self.ids.pessoa_list.add_widget(pessoa_item)
 
-            # Fechar a conexão com o banco de dados
-            commitEFecharConexao(conn)
-
         except Exception as e:
             toast(f"Error: {e}", duration=5)
             print(e)
-
-    pass
 
 
 class PessoaListItem(OneLineAvatarIconListItem, EventDispatcher):
@@ -129,12 +153,26 @@ class PessoaListItem(OneLineAvatarIconListItem, EventDispatcher):
         self.texto = f"{nome} | {endereco} | {telefone} | {email}"
         self.btnBuscar = btnBuscar
 
+    def editar(self):
+        global gt
+
+        # alterando os dados da tela pessoa para os da pessoa a ser editada
+        tela_pessoa = gt.get_screen('pessoa')
+        tela_pessoa.ids['pessoaLabel'].text = 'Editar\nPessoa'
+        tela_pessoa.ids['pessoaNome'].text = self.nome
+        tela_pessoa.ids['pessoaEndereco'].text = self.endereco
+        tela_pessoa.ids['pessoaTelefone'].text = self.telefone
+        tela_pessoa.ids['pessoaEmail'].text = self.email
+        tela_pessoa.editar = True
+        tela_pessoa.id_pessoa_editar = self.id_pessoa
+
+        gt.transition.direction = 'left'
+        gt.current = 'pessoa'
+
     def deletar(self):
         def confirmar_exclusao():
             try:
-                con, cursor = conectarBancoECursor()
-                operar_pessoa(cursor, 'DELETE', dados={'nome': self.nome})
-                commitEFecharConexao(con)
+                operar_pessoa('DELETE', dados={'nome': self.nome})
                 self.btnBuscar.trigger_action()
                 toast("Registro deletado", duration=5)
 
@@ -171,9 +209,12 @@ class MyApp(MDApp):
         Builder.load_file("./telas/TelaPessoa.kv")
         Builder.load_file("./telas/EditarPessoa.kv")
         Builder.load_file("./telas/Popup.kv")
+        global gt
+        gt = Builder.load_file("./telas/GerenciadorTelas.kv")
 
-        return Builder.load_file("./telas/GerenciadorTelas.kv")
+        return gt
 
 
+gt = None
 if __name__ == "__main__":
     MyApp().run()

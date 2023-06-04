@@ -48,9 +48,7 @@
             line_color: "white"
             font_size: 15
             icon_size: 20
-            on_release:
-                root.manager.transition.direction = 'left'
-                root.manager.current = "pessoa"
+            on_release: root.cadastrar()
 
         MDScrollView:
             MDList:
@@ -62,6 +60,7 @@
 
     IconLeftWidget:
         icon: 'cog'
+        on_release: root.editar()
 
     MDIconButton:
         icon: "minus"
