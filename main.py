@@ -23,6 +23,7 @@ class MyApp(MDApp):
         Builder.load_file("./telas/Popup.kv")
         Builder.load_file("./telas/Usuario/ConsultarUsuario.kv")
         Builder.load_file("./telas/Usuario/TelaUsuario.kv")
+        Builder.load_file("./telas/Item/TelaItens.kv")
 
         gt = Builder.load_file("./telas/GerenciadorTelas.kv")
 
@@ -53,6 +54,8 @@ class LoginTela(MDScreen):
     labelMensagem = ObjectProperty(None)
 
     def validarLogin(self):
+        global usuario_atual
+
         # recebendo os dados de login
         usuarioText = self.usuario.text
         senhaText = self.senha.text
@@ -64,10 +67,9 @@ class LoginTela(MDScreen):
             if senhaText == usuarioBD[2]:
                 print("---Acesso permitido---")
 
+                usuario_atual = usuarioText
                 self.manager.transition.direction = "left"
                 self.manager.current = "principal"
-
-                # self.labelMensagem.text = ""
 
             else:
                 toast("Login ou senha inválidos", duration=10)
@@ -81,10 +83,23 @@ class LoginTela(MDScreen):
 
 
 class TelaPrincipal(MDScreen):
+
+    def verificar_usuario(self):
+        print(123)
+        global usuario_atual
+
+        if not usuario_atual == 'admin':
+            toast("Acesso permitido somente ao administrador!")
+            return
+
+        self.manager.transition.direction = 'left'
+        self.manager.current = 'consultar_usuario'
+
+
+class TelaItens(MDScreen):
     pass
 
-
-# ------------------ PESSOA
+# ------------------ PESSOA ----------------
 class TelaPessoa(MDScreen):
     editar = False
     id_pessoa_editar = 0
@@ -227,7 +242,7 @@ class PessoaListItem(OneLineAvatarIconListItem, EventDispatcher):
 # ---------------------
 
 
-# --------------------- USUARIO
+# --------------------- USUARIO ----------------
 class ConsultarUsuario(MDScreen):
     usuario_list = ObjectProperty(None)
 
@@ -386,6 +401,8 @@ class TelaUsuario(MDScreen):
 
 
 
+
+usuario_atual = ''
 gt = None
 if __name__ == "__main__":
     MyApp().run()
