@@ -1,41 +1,44 @@
-<TelaEditarPessoa>:
-    name: "editar_pessoa"
+<TelaUsuario>:
+    name: 'usuario'
 
     MDFloatLayout:
 
         MDLabel:
-            text: "Editar\nPessoa"
+            id: usuario_label
+            text: "Cadastrar\nUsuario"
             halign: "center"
             pos_hint: {'center_x': 0.5, 'center_y': 0.9}
             font_size:  40
 
         MDTextField:
-            id: pessoaNome
+            id: usuario_login
             hint_text:"Nome"
+            write_tab: False
+            multiline: False
+            readonly: False
             pos_hint: {'center_x':0.5,'center_y':0.7}
             size_hint_x: 0.75
             max_text_length: 25
 
         MDTextField:
-            id: pessoaEndereco
-            hint_text:"Endereço"
+            id: usuario_senha
+            hint_text:"Senha"
+            write_tab: False
+            multiline: False
             pos_hint: {'center_x':0.5,'center_y':0.6}
             size_hint_x: 0.75
             max_text_length: 25
+            password: True
 
         MDTextField:
-            id: pessoaTelefone
-            hint_text:"Telefone"
+            id: usuario_senha_confirmar
+            hint_text:"Confirmar senha"
+            write_tab: False
+            multiline: False
             pos_hint: {'center_x':0.5,'center_y':0.5}
             size_hint_x: 0.75
             max_text_length: 25
-
-        MDTextField:
-            id: pessoaEmail
-            hint_text:"Email"
-            pos_hint: {'center_x':0.5,'center_y':0.4}
-            size_hint_x: 0.75
-            max_text_length: 25
+            password: True
 
         MDFillRoundFlatIconButton:
             icon: "arrow-left-circle-outline"
@@ -48,14 +51,13 @@
             line_color: "white"
             font_size: 25
             icon_size: 30
-            on_release:
-                root.manager.transition.direction = 'right'
-                root.manager.current = "lista_pessoa"
+            on_release: root.voltar()
 
         MDFillRoundFlatIconButton:
-            icon: "content-save-edit-outline"
+            id: salvar_button
+            icon: "content-save-outline"
             theme_icon_color: "Custom"
-            text: "Salvar edição"
+            text: "Salvar"
             pos_hint: {'center_x':0.5,'center_y':0.1}
             size_hint_x: 0.20
             theme_text_color: "Custom"
@@ -63,7 +65,4 @@
             line_color: "white"
             font_size: 25
             icon_size: 30
-            on_release:
-                #root.salvar_dados(pessoaNome, pessoaEndereco, pessoaTelefone, pessoaEmail)
-                root.manager.transition.direction = 'right'
-                root.manager.current = "lista_pessoa"
+            on_release: root.salvar_ou_editar_dados()

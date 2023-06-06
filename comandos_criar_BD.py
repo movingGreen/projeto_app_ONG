@@ -10,7 +10,7 @@ scriptsCriarTabelas = {
 """
 ,
 'criarTabelaTipo_item' : """
-    CREATE TABLE Tipo_Item (
+    CREATE TABLE Usuario (
     ID_Tipo_Item INTEGER PRIMARY KEY AUTOINCREMENT,
     Descricao VARCHAR(50)
     );
@@ -59,7 +59,7 @@ scriptsCriarTabelas = {
     Descricao VARCHAR(100),
     Qtd INTEGER,
     ID_Tipo_Item INTEGER,
-    FOREIGN KEY(ID_Tipo_Item) REFERENCES Tipo_Item (ID_Tipo_Item)
+    FOREIGN KEY(ID_Tipo_Item) REFERENCES Usuario (ID_Tipo_Item)
     );
 """
 ,

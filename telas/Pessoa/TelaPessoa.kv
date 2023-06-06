@@ -57,9 +57,7 @@
             line_color: "white"
             font_size: 25
             icon_size: 30
-            on_release:
-                root.manager.transition.direction = 'right'
-                root.manager.current = "lista_pessoa"
+            on_release: root.voltar()
 
         MDFillRoundFlatIconButton:
             id: salvar_button

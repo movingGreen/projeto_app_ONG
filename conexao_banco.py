@@ -2,7 +2,7 @@ import sqlite3
 from comandos_criar_BD import scriptsCriarTabelas 
 
 
-def conectarBancoECursor():
+def conectar_banco_e_cursor():
     # conexão com banco sqlite
     conn = sqlite3.connect('Inventario_ONG.db')
     
@@ -15,7 +15,7 @@ def conectarBancoECursor():
     return [conn, cursor]
 
 
-def commitEFecharConexao(conector):
+def commit_e_fechar_conexao(conector):
     # gravando no banco de dados os comandos
     conector.commit()
     # fechando conexão com o banco de dados
@@ -25,8 +25,8 @@ def commitEFecharConexao(conector):
 
 
 # criando as tabelas (schema)
-def criarTabelas():
-    conn, cursor = conectarBancoECursor()
+def criar_tabelas():
+    conn, cursor = conectar_banco_e_cursor()
 
     for comando, script in scriptsCriarTabelas.items():
         cursor.execute(script)
@@ -34,34 +34,34 @@ def criarTabelas():
         
     print("Tabelas criadas com sucesso")
 
-    commitEFecharConexao(conn)
+    commit_e_fechar_conexao(conn)
 
 
 # criando um usuarion admin
-def insertUsuario(login, senha):
-    conn, cursor = conectarBancoECursor()
+def insert_usuario(login, senha):
+    conn, cursor = conectar_banco_e_cursor()
 
     cursor.execute("""
                     INSERT INTO USUARIO ( Login, Senha)
                     VALUES (?, ?)""", (login,  senha))
     
     print("Comandos feitos com sucesso")
-    commitEFecharConexao(conn)
+    commit_e_fechar_conexao(conn)
 
 
-def selectUsuario(login):
-    conn, cursor = conectarBancoECursor()
+def select_um_usuario(login):
+    conn, cursor = conectar_banco_e_cursor()
 
     cursor.execute(""" SELECT * FROM USUARIO WHERE login = ?""", (login,))
     resposta = cursor.fetchall()
 
-    commitEFecharConexao(conn)
+    commit_e_fechar_conexao(conn)
     
     return resposta
 
 
 def operar_pessoa(operador, dados=None):
-    conn, cursor = conectarBancoECursor()
+    conn, cursor = conectar_banco_e_cursor()
 
     if dados is None and (operador != "SELECT"):
         return print("dados vazio")
@@ -71,13 +71,13 @@ def operar_pessoa(operador, dados=None):
             cursor.execute(""" SELECT * FROM PESSOA ORDER BY Nome LIMIT 20""")
             resposta = cursor.fetchall()
 
-            commitEFecharConexao(conn)
+            commit_e_fechar_conexao(conn)
             return resposta
 
         cursor.execute(""" SELECT * FROM PESSOA WHERE Nome LIKE ? ORDER BY Nome LIMIT 20""", ('%' + dados['nome'] + '%',))
         resposta = cursor.fetchall()
 
-        commitEFecharConexao(conn)
+        commit_e_fechar_conexao(conn)
         return resposta
 
     if operador == "INSERT":
@@ -97,10 +97,52 @@ def operar_pessoa(operador, dados=None):
 
     if operador == "DELETE":
         cursor.execute("""
-                        DELETE FROM PESSOA WHERE Nome = ?""", (dados['nome'],))
+                        DELETE FROM PESSOA WHERE id_pessoa = ?""", (dados['id_pessoa'],))
         print("DELETE feito com sucesso")
 
-    commitEFecharConexao(conn)
+    commit_e_fechar_conexao(conn)
 
+
+def operar_usuario(operador, dados):
+    conn, cursor = conectar_banco_e_cursor()
+
+    if dados is None and (operador != "SELECT"):
+        return print("dados vazio")
+
+    if operador == "SELECT":
+        cursor.execute(
+            """ SELECT * FROM USUARIO 
+                WHERE login LIKE ? 
+                ORDER BY login LIMIT 20""",
+            ('%' + dados['login'] + '%',))
+
+        resposta = cursor.fetchall()
+
+        commit_e_fechar_conexao(conn)
+        return resposta
+
+    if operador == "INSERT":
+        cursor.execute(""" 
+                        INSERT INTO USUARIO (login, senha)
+                        VALUES (?, ?)""",
+                       (dados['login'], dados['senha']))
+
+        print("Insert feito com sucesso")
+
+    if operador == "UPDATE":
+        cursor.execute("""
+                        UPDATE USUARIO set login = ?, senha = ?
+                        WHERE ID_Usuario = ?""",
+                       (dados['login'], dados['senha'], dados['id_usuario']))
+
+        print("UPDATE feito com sucesso")
+
+    if operador == "DELETE":
+        cursor.execute("""
+                        DELETE FROM USUARIO WHERE id_usuario = ?""",
+                       (dados['id_usuario'],))
+        print("DELETE feito com sucesso")
+
+    commit_e_fechar_conexao(conn)
 
 
