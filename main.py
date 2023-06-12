@@ -1,15 +1,15 @@
-from kivy.clock import Clock
 from kivy.event import EventDispatcher
 from kivy.uix.popup import Popup
 from kivymd.app import MDApp
 from kivymd.toast import toast
 from kivy.lang import Builder
 from kivymd.uix.list import OneLineAvatarIconListItem
+from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.screenmanager import ScreenManager
 from kivymd.uix.screen import MDScreen
 from kivy.properties import ObjectProperty, StringProperty
 
-from conexao_banco import select_um_usuario, operar_pessoa, operar_usuario
+from conexao_banco import select_um_usuario, operar_pessoa, operar_usuario, operar_doacao
 
 
 class MyApp(MDApp):
@@ -24,6 +24,8 @@ class MyApp(MDApp):
         Builder.load_file("./telas/Usuario/ConsultarUsuario.kv")
         Builder.load_file("./telas/Usuario/TelaUsuario.kv")
         Builder.load_file("./telas/Item/TelaItens.kv")
+        Builder.load_file("./telas/Doacao/ConsultarDoacao.kv")
+        Builder.load_file("./telas/Doacao/TelaDoacao.kv")
 
         gt = Builder.load_file("./telas/GerenciadorTelas.kv")
 
@@ -67,7 +69,7 @@ class LoginTela(MDScreen):
             if senhaText == usuarioBD[2]:
                 print("---Acesso permitido---")
 
-                usuario_atual = usuarioText
+                usuario_atual = usuarioBD
                 self.manager.transition.direction = "left"
                 self.manager.current = "principal"
 
@@ -75,11 +77,9 @@ class LoginTela(MDScreen):
                 toast("Login ou senha inválidos", duration=10)
                 print("---Acesso negado---")
 
-                # self.labelMensagem.text = "Senha Incorreta"
         except:
             print("###Erro de BD###")
             toast("Login ou senha inválidos", duration=10)
-            # self.labelMensagem.text = "Senha Incorreta"
 
 
 class TelaPrincipal(MDScreen):
@@ -88,7 +88,7 @@ class TelaPrincipal(MDScreen):
         print(123)
         global usuario_atual
 
-        if not usuario_atual == 'admin':
+        if not usuario_atual[3] == 1:
             toast("Acesso permitido somente ao administrador!")
             return
 
@@ -98,6 +98,7 @@ class TelaPrincipal(MDScreen):
 
 class TelaItens(MDScreen):
     pass
+
 
 # ------------------ PESSOA ----------------
 class TelaPessoa(MDScreen):
@@ -251,6 +252,7 @@ class ConsultarUsuario(MDScreen):
 
         tela_usuario.ids['usuario_label'].text = 'Cadastrar\nPessoa'
         tela_usuario.ids['usuario_login'].readonly = False
+        tela_usuario.ids['is_admin_switch'].active = False
         tela_usuario.editar = False
         self.manager.transition.direction = 'left'
         self.manager.current = 'usuario'
@@ -269,8 +271,14 @@ class ConsultarUsuario(MDScreen):
 
             # Iterar sobre os resultados da consulta
             for row in lista_usuario:
-                id_usuario, login, senha = row
-                usuario_item = UsuarioListItem(id_usuario, login, senha, btn_buscar)
+                id_usuario, login, senha, is_admin = row
+
+                if is_admin == 1:
+                    is_admin = True
+                else:
+                    is_admin = False
+
+                usuario_item = UsuarioListItem(id_usuario, login, senha, is_admin, btn_buscar)
 
                 # Adicionar o item à lista
                 self.ids.usuario_list.add_widget(usuario_item)
@@ -283,12 +291,13 @@ class ConsultarUsuario(MDScreen):
 class UsuarioListItem(OneLineAvatarIconListItem, EventDispatcher):
     texto = StringProperty('')
 
-    def __init__(self, id_usuario, login='', senha='', btn_buscar=None, **kwargs):
+    def __init__(self, id_usuario, login='', senha='', is_admin=False, btn_buscar=None, **kwargs):
         super(UsuarioListItem, self).__init__(**kwargs)
         self.id_usuario = id_usuario
         self.login = login
         self.senha = senha
-        self.texto = f"{login} |"
+        self.admin = is_admin
+        self.texto = f"{login} | {self.admin}"
         self.btn_buscar = btn_buscar
 
     # metodo do botao engrenagem
@@ -300,6 +309,7 @@ class UsuarioListItem(OneLineAvatarIconListItem, EventDispatcher):
         tela_usuario.ids['usuario_label'].text = 'Editar\nUsuario'
         tela_usuario.ids['usuario_login'].text = self.login
         tela_usuario.ids['usuario_login'].readonly = True
+        tela_usuario.ids['is_admin_switch'].active = self.admin
         tela_usuario.editar = True
         tela_usuario.id_usuario_editar = self.id_usuario
 
@@ -333,6 +343,7 @@ class TelaUsuario(MDScreen):
         self.ids['usuario_login'].text = ''
         self.ids['usuario_senha'].text = ''
         self.ids['usuario_senha_confirmar'].text = ''
+        self.ids['is_admin_switch'].active = False
         self.id_usuario_editar = 0
 
     def voltar(self):
@@ -356,9 +367,15 @@ class TelaUsuario(MDScreen):
             self.ids.usuario_senha.text
         )
 
+        if self.ids.is_admin_switch.active:
+            self.admin = 1
+        else:
+            self.admin = 0
+
         operar_usuario("UPDATE", dados={
             'login': self.ids.usuario_login.text,
             'senha': self.ids.usuario_senha.text,
+            'admin': self.admin,
             'id_usuario': self.id_usuario_editar
         })
 
@@ -375,9 +392,15 @@ class TelaUsuario(MDScreen):
             self.ids.usuario_senha.text
         )
 
+        if self.ids.is_admin_switch.active:
+            self.admin = 1
+        else:
+            self.admin = 0
+
         operar_usuario("INSERT", dados={
             'login': self.ids.usuario_login.text,
-            'senha': self.ids.usuario_senha.text
+            'senha': self.ids.usuario_senha.text,
+            'admin': self.admin
         })
 
         self.manager.transition.direction = 'right'
@@ -400,9 +423,191 @@ class TelaUsuario(MDScreen):
 # ---------------------------------------------
 
 
+# --------------------- DOACAO ----------------
+class ConsultarDoacao(MDScreen):
+    doacao_list = ObjectProperty(None)
+
+    def cadastrar(self):
+        tela_doacao = self.manager.get_screen('tela_doacao')
+
+        tela_doacao.ids['doacaoLabel'].text = 'Cadastrar\nDoação'
+        tela_doacao.editar = False
+        self.manager.transition.direction = 'left'
+        self.manager.current = 'tela_doacao'
+
+    def pesquisar(self, texto):
+        try:
+            print(texto)
+
+            doacao_resposta_bd = operar_doacao('SELECT', dados={'observacao': texto.strip()})
+            print(doacao_resposta_bd)
+
+            # Limpar a lista de doacao
+            self.ids.doacao_list.clear_widgets()
+
+            btn_buscar = self.ids.button_buscar
+
+            # Iterar sobre os resultados da consulta
+            for row in doacao_resposta_bd:
+                id_doacao, dt_doacao, observacao, nome, login, id_pessoa, id_usuario = row
+                doacao_item = DoacaoListItem(id_doacao, dt_doacao, observacao,
+                                             nome, login, id_pessoa, id_usuario, btn_buscar)
+
+                # Adicionar o item à lista
+                self.ids.doacao_list.add_widget(doacao_item)
+
+        except Exception as e:
+            toast(f"Error: {e}", duration=5)
+            print(e)
 
 
-usuario_atual = ''
+class DoacaoListItem(OneLineAvatarIconListItem, EventDispatcher):
+    texto = StringProperty('')
+
+    def __init__(self, id_doacao, dt_doacao='', observacao='',
+                 nome='', login='', id_pessoa='', id_usuario='',
+                 btn_buscar=None, **kwargs):
+        super(DoacaoListItem, self).__init__(**kwargs)
+        self.id_doacao = id_doacao
+        self.dt_doacao = dt_doacao
+        self.observacao = observacao
+        self.id_pessoa = id_pessoa
+        self.id_usuario = id_usuario
+        self.nome = nome
+        self.login = login
+        self.btn_buscar = btn_buscar
+
+        self.texto = f"|obs: {observacao} |data: {dt_doacao} |pessoa: {nome}"
+
+    # metodo do botao engrenagem
+    def editar(self):
+        global gt
+
+        # alterando os dados da tela doacao para os do doacao a ser editado
+        tela_doacao = gt.get_screen('tela_doacao')
+        tela_doacao.ids['doacaoLabel'].text = 'Editar\nDoação'
+        tela_doacao.ids['doacaoData'].text = self.dt_doacao
+        tela_doacao.ids['doacaoObservacao'].text = self.observacao
+        tela_doacao.ids['doacaoPessoa'].text = self.nome
+        tela_doacao.editar = True
+        tela_doacao.id_doacao_editar = self.id_doacao
+        tela_doacao.id_pessoa = self.id_pessoa
+
+        gt.transition.direction = 'left'
+        gt.current = 'tela_doacao'
+
+    # metodo do botao menos
+    def deletar(self):
+        def confirmar_exclusao_doacao():
+            try:
+                operar_doacao('DELETE', dados={'id_doacao': self.id_doacao})
+                self.btn_buscar.trigger_action()
+                toast("Registro deletado", duration=5)
+
+            except Exception as e:
+                toast(f"Error: {e}", duration=5)
+                print(e)
+
+        popup = ConfirmationPopup(
+            callback=confirmar_exclusao_doacao,
+            nome_registro=f"id: {self.id_doacao} '{self.observacao}'"
+        )
+        popup.open()
+
+
+class TelaDoacao(MDScreen):
+    editar = False
+    id_doacao_editar = 0
+    id_pessoa = 0
+
+    def on_enter(self, *args):
+        self.lista_pessoas = []
+        resposta_pessoas = operar_pessoa('SELECT', dados={'nome': ''})
+
+        # Iterar sobre os resultados da consulta
+        for row in resposta_pessoas:
+            id_pessoa, nome, endereco, telefone, email = row
+
+            list_item_pessoa = {
+                "viewclass": "OneLineListItem",
+                "text": f"{id_pessoa} | {nome}",
+                "on_release": lambda x=[id_pessoa, nome]: self.definir_pessoa(x)
+            }
+
+            self.lista_pessoas.append(list_item_pessoa)
+
+    def dropdown_lista_pessoas(self):
+        self.dropdown_pessoas = MDDropdownMenu(
+            caller = self.ids.pesquisar_pessoa,
+            items = self.lista_pessoas,
+            width_mult = 4
+        )
+        self.dropdown_pessoas.open()
+
+    def definir_pessoa(self, dados_pessoa):
+        [id_pessoa, nome] = dados_pessoa
+        self.id_pessoa = id_pessoa
+        self.ids['doacaoPessoa'].text = nome
+
+    def on_leave(self):
+        self.ids['doacaoData'].text = ''
+        self.ids['doacaoObservacao'].text = ''
+        self.ids['doacaoPessoa'].text = ''
+        self.id_doacao_editar = 0
+        self.id_pessoa = 0
+
+    def voltar(self):
+        self.manager.transition.direction = 'right'
+        self.manager.current = "consultar_doacao"
+
+    def salvar_ou_editar_dados(self):
+        if self.editar:
+            self.editar_dados()
+        else:
+            self.salvar_dados()
+
+    def editar_dados(self):
+        print(
+            'Atualizando:',
+            self.ids.doacaoObservacao.text
+        )
+
+        operar_doacao("UPDATE", dados={
+            'dt_doacao': self.ids['doacaoData'].text,
+            'observacao': self.ids['doacaoObservacao'].text,
+            'id_doacao': self.id_doacao_editar,
+            'id_pessoa': self.id_pessoa
+        })
+
+        self.manager.transition.direction = 'right'
+        self.manager.current = "consultar_doacao"
+
+    def salvar_dados(self):
+        global usuario_atual
+
+        print(
+            'Salvando:',
+            self.ids.doacaoObservacao.text,
+            self.ids.doacaoData.text
+        )
+
+        operar_doacao("INSERT", dados={
+            'dt_doacao': self.ids['doacaoData'].text,
+            'observacao': self.ids['doacaoObservacao'].text,
+            'id_pessoa': self.id_pessoa,
+            'id_usuario': usuario_atual[0]
+
+        })
+
+        self.manager.transition.direction = 'right'
+        self.manager.current = "consultar_doacao"
+
+# ---------------------------------------------
+
+
+
+
+usuario_atual = [1, 'admin', '123', 1]
 gt = None
 if __name__ == "__main__":
     MyApp().run()

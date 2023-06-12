@@ -35,9 +35,10 @@ scriptsCriarTabelas = {
 ,
 'criarTabelaUsuario' : """
     CREATE TABLE USUARIO (
-    ID_Usuario INTEGER PRIMARY KEY AUTOINCREMENT,
-    Login VARCHAR(30),
-    Senha VARCHAR(50)
+    ID_Usuario	INTEGER PRIMARY KEY AUTOINCREMENT,
+    Login   VARCHAR(30) NOT NULL,
+    Senha   VARCHAR(50) NOT NULL,
+    Admin   INTEGER NOT NULL
     );
 """
 ,
