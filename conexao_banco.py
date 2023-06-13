@@ -153,10 +153,19 @@ def operar_usuario(operador, dados):
 def operar_item(operador, dados):
     conn, cursor = conectar_banco_e_cursor()
 
-    if dados is None and (operador != "SELECT"):
-        return print("dados vazio")
-
     if operador == "SELECT":
+
+        if 'id_item' in dados:
+            cursor.execute(
+                """ SELECT * FROM ITEM 
+                    WHERE id_item = ? """,
+                (dados['id_item'],))
+
+            resposta = cursor.fetchall()
+
+            commit_e_fechar_conexao(conn)
+            return resposta
+
         cursor.execute(
             """ SELECT * FROM ITEM 
                 WHERE descricao LIKE ? 
@@ -398,30 +407,13 @@ def operar_tipo_saida(operador, dados):
 def operar_item_doacao(operador, dados):
     conn, cursor = conectar_banco_e_cursor()
 
-    if dados is None and (operador != "SELECT"):
-        return print("dados vazio")
-
     if operador == "SELECT":
 
-        if dados['id_item'] and not dados['id_doacao']:
-
+        if 'id_item' not in dados and 'id_doacao' not in dados:
             cursor.execute(
                 """ SELECT * FROM ITEM_DOACAO 
-                    WHERE id_item = ? 
                     ORDER BY qt_item LIMIT 20""",
-                (dados['id_item'],))
-
-            resposta = cursor.fetchall()
-            commit_e_fechar_conexao(conn)
-
-            return resposta
-
-        if dados['id_doacao'] and not dados['id_item']:
-            cursor.execute(
-                """ SELECT * FROM ITEM_DOACAO 
-                    WHERE id_doacao = ? 
-                    ORDER BY qt_item LIMIT 20""",
-                (dados['id_doacao'],))
+            )
 
             resposta = cursor.fetchall()
             commit_e_fechar_conexao(conn)
@@ -431,8 +423,7 @@ def operar_item_doacao(operador, dados):
         cursor.execute(
             """ SELECT * FROM ITEM_DOACAO 
                 WHERE id_item = ? 
-                AND id_doacao = ?
-                ORDER BY qt_item LIMIT 20""",
+                AND id_doacao = ?""",
             (dados['id_item'], dados['id_doacao']))
 
         resposta = cursor.fetchall()
@@ -442,18 +433,19 @@ def operar_item_doacao(operador, dados):
 
     if operador == "INSERT":
         cursor.execute(""" 
-                        INSERT INTO ITEM_DOACAO (id_item, id_doacao, qt_item)
+                        INSERT INTO ITEM_DOACAO (qt_item, id_item, id_doacao)
                         VALUES (?, ?, ?)""",
-                       (dados['id_item'], dados['id_doacao'], dados['qt_item']))
+                       (dados['qt_item'], dados['id_item'], dados['id_doacao']))
 
         print("Insert feito com sucesso")
 
     if operador == "UPDATE":
         cursor.execute("""
-                        UPDATE ITEM_DOACAO set qt_item = ?, 
+                        UPDATE ITEM_DOACAO set qt_item = ?, id_item = ?, id_doacao = ? 
                         WHERE id_item = ? 
                         AND id_doacao = ?""",
-                       (dados['qt_item'], dados['id_item'], dados['id_doacao']))
+                       (dados['qt_item'], dados['id_item'], dados['id_doacao'],
+                        dados['id_item_antes_edicao'], dados['id_doacao_antes_edicao']))
 
         print("UPDATE feito com sucesso")
 
@@ -462,7 +454,7 @@ def operar_item_doacao(operador, dados):
                         DELETE FROM ITEM_DOACAO 
                         WHERE id_item = ? 
                         AND id_doacao = ?""",
-                       (dados['qt_item'], dados['id_item']))
+                       (dados['id_item'], dados['id_doacao']))
         print("DELETE feito com sucesso")
 
     commit_e_fechar_conexao(conn)
@@ -475,6 +467,18 @@ def operar_doacao(operador, dados):
         return print("dados vazio")
 
     if operador == "SELECT":
+        if 'id_doacao' in dados:
+            cursor.execute(
+                """ SELECT * 
+                    FROM DOACAO
+                    WHERE id_doacao = ?""",
+                (dados['id_doacao'],))
+
+            resposta = cursor.fetchall()
+            commit_e_fechar_conexao(conn)
+
+            return resposta
+
         cursor.execute(
             """ SELECT 
                     id_doacao, dt_doacao, observacao, nome,

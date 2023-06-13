@@ -1,0 +1,47 @@
+<DoacaoOuItemDoacao>:
+    name: 'selecionar_doacao_ou_item_doacao'
+
+    MDFloatLayout:
+
+        MDFillRoundFlatIconButton:
+            icon: "hand-coin-outline"
+            theme_icon_color: "Custom"
+            icon_size: 35
+            text: "Consultar Doação"
+            pos_hint: {'center_x':0.5,'center_y':0.65}
+            size_hint_x: 0.40
+            text_color: 1,1,1,1
+            md_bg_color: 0.18,0.53,1,1
+            font_size: 30
+            on_release:
+                root.manager.transition.direction = 'left'
+                root.manager.current = "consultar_doacao"
+
+        MDFillRoundFlatIconButton:
+            icon: "cogs"
+            theme_icon_color: "Custom"
+            icon_size: 35
+            text: "Consultar Itens da Doação"
+            pos_hint: {'center_x':0.5,'center_y':0.5}
+            size_hint_x: 0.40
+            text_color: 1,1,1,1
+            md_bg_color: 0.18,0.53,1,1
+            font_size: 30
+            on_release:
+                root.manager.transition.direction = 'left'
+                root.manager.current = "consultar_item_doacao"
+
+        MDFillRoundFlatIconButton:
+            icon: "arrow-left-circle-outline"
+            theme_icon_color: "Custom"
+            text: "Sair"
+            pos_hint: {'center_x':0.5,'center_y':0.05}
+            size_hint_x: 0.20
+            theme_text_color: "Custom"
+            md_bg_color: 0, 0, 0, 1
+            line_color: "white"
+            font_size: 25
+            icon_size: 30
+            on_release:
+                root.manager.transition.direction = 'right'
+                root.manager.current = "principal"

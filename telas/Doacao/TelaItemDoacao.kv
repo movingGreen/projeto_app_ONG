@@ -1,27 +1,18 @@
-<TelaDoacao>:
-    name: 'tela_doacao'
+<TelaItemDoacao>:
+    name: 'tela_item_doacao'
 
     MDFloatLayout:
 
         MDLabel:
-            id: doacaoLabel
-            text: "Cadastrar\nDoacao"
+            id: itemDoacaoLabel
+            text: "Cadastrar\nItem Doacao"
             halign: "center"
             pos_hint: {'center_x': 0.5, 'center_y': 0.9}
             font_size:  40
 
         MDTextField:
-            id: doacaoData
-            hint_text:"Data"
-            write_tab: False
-            multiline: False
-            pos_hint: {'center_x':0.5,'center_y':0.7}
-            size_hint_x: 0.75
-            max_text_length: 25
-
-        MDTextField:
-            id: doacaoObservacao
-            hint_text:"Observacao"
+            id: quantidadeItem
+            hint_text:"Quantidade do item"
             write_tab: False
             multiline: False
             pos_hint: {'center_x':0.5,'center_y':0.6}
@@ -29,19 +20,36 @@
             max_text_length: 25
 
         MDIconButton:
-            id: pesquisar_pessoa
-            icon: "account-search-outline"
+            id: pesquisarItem
+            icon: "archive-search"
             pos_hint: {"center_x": .2, "center_y": .5}
             icon_size: 30
-            on_release: root.dropdown_lista_pessoas()
+            on_release: root.dropdown_lista_item()
 
         MDTextField:
-            id: doacaoPessoa
-            hint_text:"Pessoa"
+            id: nomeItem
+            hint_text:"Item"
             write_tab: False
             readonly: True
             multiline: False
             pos_hint: {'center_x':0.5,'center_y':0.5}
+            size_hint_x: 0.5
+            max_text_length: 25
+
+        MDIconButton:
+            id: pesquisarDoacao
+            icon: "card-search-outline"
+            pos_hint: {"center_x": .2, "center_y": .4}
+            icon_size: 30
+            on_release: root.dropdown_lista_doacao()
+
+        MDTextField:
+            id: obsDoacao
+            hint_text:"Doacao"
+            write_tab: False
+            readonly: True
+            multiline: False
+            pos_hint: {'center_x':0.5,'center_y':0.4}
             size_hint_x: 0.5
             max_text_length: 25
 

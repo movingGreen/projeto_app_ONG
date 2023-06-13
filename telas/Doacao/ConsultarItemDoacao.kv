@@ -1,13 +1,13 @@
-<ConsultarDoacao>:
-    name: "consultar_doacao"
-    doacao_list: doacao_list
+<ConsultarItemDoacao>:
+    name: "consultar_item_doacao"
+    scroll_list_registros: scroll_list_registros
     button_buscar: button_buscar
 
     MDBoxLayout:
         orientation: 'vertical'
 
         MDLabel:
-            text: "Consultar Doação"
+            text: "Consultar Item Doação"
             halign: "center"
             pos_hint: {'center_x': 0.5, 'center_y': 0.9}
             font_size:  40
@@ -16,8 +16,8 @@
             orientation: 'horizontal'
 
             MDTextField:
-                id: iddoacao
-                hint_text: "Pesquisar doação"
+                id: idPesquisa
+                hint_text: "Pesquisar item doação"
                 pos_hint: {'center_x': 0.5, 'center_y': 0.8}
                 size_hint_x: 0.75
                 max_text_length: 25
@@ -26,15 +26,14 @@
                 id: button_buscar
                 text: "Buscar"
                 pos_hint: {'center_x': 0.5, 'center_y': 0.8}
-                on_release: root.pesquisar(iddoacao.text)
-
+                on_release: root.pesquisar(idPesquisa.text)
 
             MDFillRoundFlatButton:
                 text: "Cancelar"
                 pos_hint: {'center_x': 0.5, 'center_y': 0.8}
                 on_release:
-                    iddoacao.text = ''
-                    doacao_list.clear_widgets()
+                    idPesquisa.text = ''
+                    scroll_list_registros.clear_widgets()
                     root.manager.transition.direction = 'right'
                     root.manager.current = "selecionar_doacao_ou_item_doacao"
 
@@ -52,10 +51,10 @@
 
         MDScrollView:
             MDList:
-                id: doacao_list
+                id: scroll_list_registros
 
-<DoacaoListItem>:
-    id: doacao
+<ItemDoacaoListItem>:
+    id: list_item_registros
     text: root.texto
 
     IconLeftWidget:

@@ -9,7 +9,8 @@ from kivymd.uix.screenmanager import ScreenManager
 from kivymd.uix.screen import MDScreen
 from kivy.properties import ObjectProperty, StringProperty
 
-from conexao_banco import select_um_usuario, operar_pessoa, operar_usuario, operar_doacao
+from conexao_banco import select_um_usuario, operar_pessoa, operar_usuario, operar_doacao, operar_item_doacao, \
+    operar_item
 
 
 class MyApp(MDApp):
@@ -26,6 +27,9 @@ class MyApp(MDApp):
         Builder.load_file("./telas/Item/TelaItens.kv")
         Builder.load_file("./telas/Doacao/ConsultarDoacao.kv")
         Builder.load_file("./telas/Doacao/TelaDoacao.kv")
+        Builder.load_file("./telas/Doacao/DoacaoOuItemDoacao.kv")
+        Builder.load_file("./telas/Doacao/ConsultarItemDoacao.kv")
+        Builder.load_file("./telas/Doacao/TelaItemDoacao.kv")
 
         gt = Builder.load_file("./telas/GerenciadorTelas.kv")
 
@@ -97,6 +101,10 @@ class TelaPrincipal(MDScreen):
 
 
 class TelaItens(MDScreen):
+    pass
+
+
+class DoacaoOuItemDoacao(MDScreen):
     pass
 
 
@@ -604,6 +612,216 @@ class TelaDoacao(MDScreen):
 
 # ---------------------------------------------
 
+
+# --------------------- ITEM DOACAO ----------------
+class ConsultarItemDoacao(MDScreen):
+    scroll_list_registros = ObjectProperty(None)
+
+    def cadastrar(self):
+        tela_item_doacao = self.manager.get_screen('tela_item_doacao')
+
+        tela_item_doacao.ids['itemDoacaoLabel'].text = 'Cadastrar\nItem Doacao'
+        tela_item_doacao.editar = False
+        self.manager.transition.direction = 'left'
+        self.manager.current = 'tela_item_doacao'
+
+    def pesquisar(self, texto):
+        try:
+            print(texto)
+
+            item_doacao_resposta_bd = operar_item_doacao('SELECT', {})
+            print(item_doacao_resposta_bd)
+
+            # Limpar a lista de doacao
+            self.ids.scroll_list_registros.clear_widgets()
+
+            btn_buscar = self.ids.button_buscar
+
+            # Iterar sobre os resultados da consulta
+            for row in item_doacao_resposta_bd:
+                qt_item, id_item, id_doacao = row
+
+                item = operar_item('SELECT', {'id_item': id_item})
+                doacao = operar_doacao('SELECT', {'id_doacao': id_doacao})
+
+                item_registro = ItemDoacaoListItem(qt_item, id_item, item[0][1], id_doacao, doacao[0][2], btn_buscar)
+
+                # Adicionar o item à lista
+                self.ids.scroll_list_registros.add_widget(item_registro)
+
+        except Exception as e:
+            toast(f"Error: {e}", duration=5)
+            print(e)
+
+
+class ItemDoacaoListItem(OneLineAvatarIconListItem, EventDispatcher):
+    texto = StringProperty('')
+
+    def __init__(self, qt_item, id_item, descricao_item, id_doacao, obs_doacao, btn_buscar, **kwargs):
+        super(ItemDoacaoListItem, self).__init__(**kwargs)
+        self.qt_item = qt_item
+        self.id_item = id_item
+        self.descricao_item = descricao_item
+        self.id_doacao = id_doacao
+        self.obs_doacao = obs_doacao
+        self.btn_buscar = btn_buscar
+
+        self.texto = f"|quantidade: {qt_item} |item: {id_item} {self.descricao_item}|doacao: {obs_doacao}"
+
+    # metodo do botao engrenagem
+    def editar(self):
+        global gt
+
+        # alterando os dados da tela doacao para os do doacao a ser editado
+        tela_item_doacao = gt.get_screen('tela_item_doacao')
+        tela_item_doacao.ids['itemDoacaoLabel'].text = 'Editar\nItem Doação'
+        tela_item_doacao.ids['quantidadeItem'].text = f'{self.qt_item}'
+        tela_item_doacao.ids['nomeItem'].text = self.descricao_item
+        tela_item_doacao.ids['obsDoacao'].text = self.obs_doacao
+        tela_item_doacao.editar = True
+        tela_item_doacao.id_item = self.id_item
+        tela_item_doacao.id_doacao = self.id_doacao
+        tela_item_doacao.id_item_antes_edicao = self.id_item
+        tela_item_doacao.id_doacao_antes_edicao = self.id_doacao
+
+        gt.transition.direction = 'left'
+        gt.current = 'tela_item_doacao'
+
+    # metodo do botao menos
+    def deletar(self):
+        def confirmar_exclusao_registro():
+            try:
+                operar_item_doacao('DELETE', dados={'id_doacao': self.id_doacao, 'id_item': self.id_item})
+                self.btn_buscar.trigger_action()
+                toast("Registro deletado", duration=5)
+
+            except Exception as e:
+                toast(f"Error: {e}", duration=5)
+                print(e)
+
+        popup = ConfirmationPopup(
+            callback=confirmar_exclusao_registro,
+            nome_registro=f"id_item: {self.id_item} | id_doacao: {self.id_doacao}"
+        )
+        popup.open()
+
+
+class TelaItemDoacao(MDScreen):
+    editar = False
+    id_item_antes_edicao = 0
+    id_doacao_antes_edicao = 0
+    id_item = 0
+    id_doacao = 0
+
+    def on_enter(self, *args):
+        self.lista_item = []
+        self.lista_doacao = []
+
+        resposta_item = operar_item('SELECT', dados={'descricao': ''})
+        resposta_doacao = operar_doacao('SELECT', dados={'observacao': ''})
+
+        # Iterar sobre os resultados da consulta
+        for row in resposta_item:
+            id_item, descricao, *_ = row
+
+            list_item = {
+                "viewclass": "OneLineListItem",
+                "text": f"{id_item} | {descricao}",
+                "on_release": lambda x=[id_item, descricao]: self.definir_item(x)
+            }
+
+            self.lista_item.append(list_item)
+
+        # Iterar sobre os resultados da consulta
+        for row in resposta_doacao:
+            id_doacao, _, observacao, *_ = row
+
+            list_doacao = {
+                "viewclass": "OneLineListItem",
+                "text": f"{id_doacao} | {observacao}",
+                "on_release": lambda x=[id_doacao, observacao]: self.definir_doacao(x)
+            }
+
+            self.lista_doacao.append(list_doacao)
+
+    def dropdown_lista_item(self):
+        self.dropdown_item = MDDropdownMenu(
+            caller = self.ids.pesquisarItem,
+            items = self.lista_item,
+            width_mult = 4
+        )
+        self.dropdown_item.open()
+
+    def dropdown_lista_doacao(self):
+        self.dropdown_doacao = MDDropdownMenu(
+            caller = self.ids.pesquisarDoacao,
+            items = self.lista_doacao,
+            width_mult = 4
+        )
+        self.dropdown_doacao.open()
+
+    def definir_item(self, dados_item):
+        [id_item, descricao] = dados_item
+        self.id_item = id_item
+        self.ids['nomeItem'].text = descricao
+
+    def definir_doacao(self, dados_doacao):
+        [id_doacao, observacao] = dados_doacao
+        self.id_doacao = id_doacao
+        self.ids['obsDoacao'].text = observacao
+
+    def on_leave(self):
+        self.ids['quantidadeItem'].text = ''
+        self.ids['nomeItem'].text = ''
+        self.ids['obsDoacao'].text = ''
+        self.id_item = 0
+        self.id_doacao = 0
+
+    def voltar(self):
+        self.manager.transition.direction = 'right'
+        self.manager.current = "consultar_item_doacao"
+
+    def salvar_ou_editar_dados(self):
+        if self.editar:
+            self.editar_dados()
+        else:
+            self.salvar_dados()
+
+    def editar_dados(self):
+        print(
+            'Atualizando:',
+            self.id_item,
+            self.id_doacao
+        )
+
+        operar_item_doacao("UPDATE", dados={
+            'qt_item': self.ids['quantidadeItem'].text,
+            'id_item': self.id_item,
+            'id_doacao': self.id_doacao,
+            'id_item_antes_edicao': self.id_item_antes_edicao,
+            'id_doacao_antes_edicao': self.id_doacao_antes_edicao
+        })
+
+        self.manager.transition.direction = 'right'
+        self.manager.current = "consultar_item_doacao"
+
+    def salvar_dados(self):
+        print(
+            'Salvando:',
+            self.id_item,
+            self.id_doacao
+        )
+
+        operar_item_doacao("INSERT", dados={
+            'qt_item': self.ids['quantidadeItem'].text,
+            'id_item': self.id_item,
+            'id_doacao': self.id_doacao
+        })
+
+        self.manager.transition.direction = 'right'
+        self.manager.current = "consultar_item_doacao"
+
+# ---------------------------------------------
 
 
 
