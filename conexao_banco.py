@@ -1,5 +1,5 @@
 import sqlite3
-from comandos_criar_BD import scriptsCriarTabelas 
+from comandos_criar_BD import scriptsCriarTabelas
 
 
 def conectar_banco_e_cursor():
@@ -519,6 +519,17 @@ def operar_doacao(operador, dados):
         print("DELETE feito com sucesso")
 
     commit_e_fechar_conexao(conn)
+
+
+# Funcao no banco de dados sqlite
+def soma_qt_item(id_doacao):
+    conn, cursor = conectar_banco_e_cursor()
+    resposta_soma = cursor.execute("SELECT SUM(qt_item) AS 'total' FROM item_doacao WHERE id_doacao = ?",
+                                   (id_doacao,)).fetchall()
+    commit_e_fechar_conexao(conn)
+    return resposta_soma
+
+
 
 
 

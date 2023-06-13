@@ -1,3 +1,4 @@
+
 from kivy.event import EventDispatcher
 from kivy.uix.popup import Popup
 from kivymd.app import MDApp
@@ -10,7 +11,7 @@ from kivymd.uix.screen import MDScreen
 from kivy.properties import ObjectProperty, StringProperty
 
 from conexao_banco import select_um_usuario, operar_pessoa, operar_usuario, operar_doacao, operar_item_doacao, \
-    operar_item
+    operar_item, soma_qt_item
 
 
 class MyApp(MDApp):
@@ -30,6 +31,7 @@ class MyApp(MDApp):
         Builder.load_file("./telas/Doacao/DoacaoOuItemDoacao.kv")
         Builder.load_file("./telas/Doacao/ConsultarItemDoacao.kv")
         Builder.load_file("./telas/Doacao/TelaItemDoacao.kv")
+        Builder.load_file("./telas/SomaPopup.kv")
 
         gt = Builder.load_file("./telas/GerenciadorTelas.kv")
 
@@ -432,6 +434,18 @@ class TelaUsuario(MDScreen):
 
 
 # --------------------- DOACAO ----------------
+
+class SomaPopup(Popup):
+    texto_popup = ObjectProperty()
+
+    def __init__(self, id_doacao, obs, total,  **kwargs):
+        super(SomaPopup, self).__init__(**kwargs)
+        self.obs = obs
+        self.total = total
+        self.id_doacao = id_doacao
+        self.ids.texto_popup.text = f"A doacao {self.id_doacao} {self.obs} recebeu: {self.total} itens"
+
+
 class ConsultarDoacao(MDScreen):
     doacao_list = ObjectProperty(None)
 
@@ -467,6 +481,41 @@ class ConsultarDoacao(MDScreen):
         except Exception as e:
             toast(f"Error: {e}", duration=5)
             print(e)
+
+    def dropdown_soma_doacao(self):
+        self.list_doacao = []
+        resposta_doacao = operar_doacao('SELECT', dados={'observacao': ''})
+
+        # Iterar sobre os resultados da consulta
+        for row in resposta_doacao:
+            id_doacao, _, observacao, *_ = row
+
+            list_item = {
+                "viewclass": "OneLineListItem",
+                "text": f"{id_doacao} | {observacao}",
+                "on_release": lambda x=[id_doacao, observacao]: self.popup_soma_item_doacao(x)
+            }
+
+            self.list_doacao.append(list_item)
+
+        self.dropdown_doacao = MDDropdownMenu(
+            caller=self.ids.button_soma_item,
+            items=self.list_doacao,
+            width_mult=4
+        )
+        self.dropdown_doacao.open()
+
+    def popup_soma_item_doacao(self, dados_soma):
+        [id_doacao, observacao] = dados_soma
+
+        somaTotal = soma_qt_item(id_doacao)
+
+        popup = SomaPopup(
+            id_doacao=id_doacao,
+            obs=observacao,
+            total=somaTotal[0][0]
+        )
+        popup.open()
 
 
 class DoacaoListItem(OneLineAvatarIconListItem, EventDispatcher):

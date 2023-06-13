@@ -29,6 +29,15 @@
                 on_release: root.pesquisar(iddoacao.text)
 
 
+            MDFillRoundFlatIconButton:
+                id: button_soma_item
+                icon: "plus"
+                theme_icon_color: "Custom"
+                text: "Somar item doacao"
+                pos_hint: {'center_x': 0.5, 'center_y': 0.8}
+                theme_text_color: "Custom"
+                on_release: root.dropdown_soma_doacao()
+
             MDFillRoundFlatButton:
                 text: "Cancelar"
                 pos_hint: {'center_x': 0.5, 'center_y': 0.8}
